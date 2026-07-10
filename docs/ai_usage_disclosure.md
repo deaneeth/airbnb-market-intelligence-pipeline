@@ -79,3 +79,26 @@ Each session entry includes:
 - **Modifications**: Replaced arrows, em dashes, and dash glyphs in new docs
   with ASCII equivalents.
 - **Rejected suggestions**: none in this session
+
+### 2026-07-11 - Phase 0 verification and Phase 1 discovery
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - verified Phase 0 gates against the current repository state
+  - tightened configuration validation for duplicate YAML keys
+  - removed optional dependencies that belong to later roadmap phases
+  - generated `docs/data_dictionary.md` from the live Amsterdam source files and official
+    Inside Airbnb dictionary sheets
+  - added Phase 1 ambiguity assumptions for price currency, host response coverage, review
+    score coverage, and anonymized coordinates
+- **Nature**: reviewed, generated, validated, and refactored
+- **Validation**: official Inside Airbnb download, assumptions, and data dictionary pages were
+  consulted; live configured Amsterdam files were inspected without committing raw data;
+  data dictionary coverage check confirmed all 127 configured source columns were documented;
+  `python -m ruff check src/ tests/ conftest.py` -> all checks passed;
+  `python -m pytest tests/ -v --basetemp=.pytest_tmp` -> 22 passed; clean temporary venv
+  install with `pip install -e ".[dev]"` succeeded and its pytest run passed with 22 tests
+- **Modifications**: Redacted free-text, name, URL, image, permit, and review-comment samples
+  from the committed data dictionary.
+- **Rejected suggestions**: no optional dashboard, geospatial package, ingestion command, or
+  downstream transform code was added because those belong to later phases.

@@ -83,3 +83,53 @@ Each entry follows this structure:
   "central" in the OLS model.
 - **Alternative considered**: Use the centroid of all listing coordinates. Rejected because
   the centroid shifts with the listing distribution and is not geographically meaningful.
+
+### [2026-07-11] Price currency symbol handling
+
+- **Component**: cleaning, data dictionary
+- **Assumption**: The `$` symbol in exported price fields is treated as a formatting artifact,
+  not evidence that Amsterdam prices are denominated in USD.
+- **Rationale**: The official Inside Airbnb data dictionary says the dollar sign is a technical
+  artifact of the export. The Amsterdam quote payloads also identify `EUR` where currency is
+  present.
+- **Consequence**: Price parsing will strip currency symbols and separators before storing
+  numeric price values. Report text will avoid USD wording unless a later source explicitly
+  proves currency conversion.
+- **Alternative considered**: Treat `$` as USD. Rejected because that would contradict the
+  official dictionary and misstate Amsterdam prices.
+
+### [2026-07-11] Host response fields unavailable in Amsterdam snapshot
+
+- **Component**: data dictionary, validation, enrichment
+- **Assumption**: `host_response_time`, `host_response_rate`, and `host_acceptance_rate`
+  are documented as source fields but are not used for Phase 1 analysis because the Amsterdam
+  detailed listings snapshot has 100.00% nulls for each field.
+- **Rationale**: A field with complete missingness cannot support a defensible comparison or
+  feature without external imputation, which is outside the current scope.
+- **Consequence**: These fields remain documented in `docs/data_dictionary.md` but are excluded
+  from planned analysis until a later snapshot or second city has usable coverage.
+- **Alternative considered**: Fill missing response fields with `"unknown"` and analyse them.
+  Rejected because it would silently turn missing source data into a false category.
+
+### [2026-07-11] Review score coverage
+
+- **Component**: data dictionary, validation, statistics
+- **Assumption**: Review score fields are listing-level aggregates available only for listings
+  with review history; missing values mean no usable source score, not a zero score.
+- **Rationale**: The Amsterdam snapshot shows about 9.87% nulls across the review score fields,
+  matching listings without review history.
+- **Consequence**: Review score analyses must report the analysed population and must not impute
+  missing scores to zero.
+- **Alternative considered**: Treat missing review scores as poor quality ratings. Rejected
+  because no source definition supports that interpretation.
+
+### [2026-07-11] Anonymized listing coordinates
+
+- **Component**: data dictionary, enrichment, maps
+- **Assumption**: Listing latitude and longitude are approximate locations, not exact addresses.
+- **Rationale**: Inside Airbnb states Airbnb anonymizes listing coordinates and nearby listings
+  can appear scattered around their actual building.
+- **Consequence**: Distance-to-centre features and maps are approximate. They can support
+  neighbourhood-scale analysis, not address-level claims.
+- **Alternative considered**: Treat coordinates as exact property locations. Rejected because
+  the official assumptions page explicitly says coordinates are anonymized.

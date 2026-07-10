@@ -18,7 +18,7 @@ SQL_DIR: Final[Path] = PROJECT_ROOT / "sql"
 
 DB_PATH: Final[Path] = DB_DIR / "airbnb.duckdb"
 
-# Column name constants — use these everywhere instead of string literals.
+# Column name constants - use these everywhere instead of string literals.
 COL_LISTING_ID: Final[str] = "listing_id"
 COL_HOST_ID: Final[str] = "host_id"
 COL_PRICE: Final[str] = "price"

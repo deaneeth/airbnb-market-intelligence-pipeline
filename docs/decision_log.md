@@ -93,3 +93,16 @@ the choice made, the rationale, and the trade-offs accepted.
   Custom functions are easier to test, read, and explain in an interview.
 - **Trade-offs accepted**: Less automatic documentation than Great Expectations provides.
   Compensated by explicit rule IDs and the profiling report.
+
+### [2026-07-11] Defer optional geospatial and dashboard dependencies
+
+- **Context**: Phase 0 requires the foundation dependencies only. GeoPandas, Folium, and
+  Streamlit are useful later, but their phases have not started.
+- **Options considered**:
+  1. Keep optional dependency groups for future geospatial and dashboard work
+  2. Remove them until the roadmap explicitly starts those phases
+- **Decision**: Remove the optional dependency groups for now.
+- **Rationale**: The current gate is easier to install and audit when it contains only packages
+  required by the current foundation and Phase 1 discovery work.
+- **Trade-offs accepted**: Later geospatial or dashboard phases must re-add the packages with
+  their own validation and documentation.
