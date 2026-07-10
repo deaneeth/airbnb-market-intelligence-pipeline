@@ -1,44 +1,34 @@
-# City configuration for the Inside Airbnb market intelligence pipeline.
+# Inside Airbnb city configuration.
 #
-# Each city entry contains the exact snapshot date and the official download URLs.
-# The configuration is the authoritative source of truth for ingestion.
-# Do not infer URLs from filenames or construct them programmatically.
-#
-# Required fields per city:
-#   name          Human-readable city name (used in reports and output paths)
-#   country       Country or region (used in documentation only)
-#   snapshot_date ISO-8601 date of the Inside Airbnb scrape (YYYY-MM-DD)
-#   files         Mapping of file keys to official download URLs
-#
-# Required file keys: listings_detailed, listings_summary, calendar,
-#   reviews_detailed, reviews_summary, neighbourhoods, neighbourhoods_geojson
-#
-# Optional file keys: any additional city-specific file the pipeline
-#   should download. Document the reason in docs/data_dictionary.md.
+# snapshot_date: the scrape date shown on insideairbnb.com/get-the-data (YYYY-MM-DD).
+# All URLs are copied verbatim from the official download page.
+# Do not construct or guess URLs; use only what appears on that page.
 
 cities:
   amsterdam:
     name: "Amsterdam"
     country: "Netherlands"
-    snapshot_date: ""           # TODO: fill in after confirming on insideairbnb.com/get-the-data/
+    snapshot_date: "2026-06-15"
     files:
-      listings_detailed: ""     # TODO: paste exact URL from download page
-      listings_summary: ""      # TODO: paste exact URL from download page
-      calendar: ""              # TODO: paste exact URL from download page
-      reviews_detailed: ""      # TODO: paste exact URL from download page
-      reviews_summary: ""       # TODO: paste exact URL from download page
-      neighbourhoods: ""        # TODO: paste exact URL from download page
-      neighbourhoods_geojson: ""# TODO: paste exact URL from download page
+      listings_detailed:    "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/data/listings.csv.gz"
+      listings_summary:     "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/visualisations/listings.csv"
+      calendar:             "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/data/calendar.csv.gz"
+      reviews_detailed:     "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/data/reviews.csv.gz"
+      reviews_summary:      "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/visualisations/reviews.csv"
+      neighbourhoods:       "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/visualisations/neighbourhoods.csv"
+      neighbourhoods_geojson: "https://data.insideairbnb.com/the-netherlands/north-holland/amsterdam/2026-06-15/visualisations/neighbourhoods.geojson"
 
-  # dublin:                     # Uncomment and populate after Amsterdam pipeline passes all tests.
+  # A second city can be added here with no Python code changes required.
+  # Populate after the Amsterdam pipeline is complete and all tests pass.
+  # dublin:
   #   name: "Dublin"
   #   country: "Ireland"
   #   snapshot_date: ""
   #   files:
-  #     listings_detailed: ""
-  #     listings_summary: ""
-  #     calendar: ""
-  #     reviews_detailed: ""
-  #     reviews_summary: ""
-  #     neighbourhoods: ""
+  #     listings_detailed:    ""
+  #     listings_summary:     ""
+  #     calendar:             ""
+  #     reviews_detailed:     ""
+  #     reviews_summary:      ""
+  #     neighbourhoods:       ""
   #     neighbourhoods_geojson: ""
