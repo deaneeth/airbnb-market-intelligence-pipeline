@@ -154,3 +154,30 @@ Each session entry includes:
   are edited, deleted, or quarantined here.
 - **Rejected suggestions**: no all-pairs fuzzy matching, no framework profiler, no full-load
   large-file profiling path, and no cleaning transformations were added.
+
+### 2026-07-11 - Cleaning and standardisation
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/cleaning.py`: deterministic price, date, category, coordinate,
+    quarantine, listing output, analysis-view, and calendar aggregation functions
+  - `src/airbnb_intelligence/cli.py`: wired `transform` to the implemented cleaning step
+  - `tests/test_cleaning.py`: fixture-based tests for parsing, normalisation, missing values,
+    invalid coordinates, and quarantine reasons
+  - `docs/assumptions.md`, `docs/decision_log.md`, and `docs/lineage.md`: cleaning-method
+    documentation and output lineage
+- **Nature**: generated, reviewed, debugged, and validated
+- **Author direction and decisions**: The developer required a new branch from `dev`, no commit
+  by the assistant, minimal readable code, neutral public wording, actual-schema inspection before
+  implementation, and repeated verification. The developer also directed that AI attribution stay
+  balanced by recording manual scope control, rejected broad suggestions, and practical acceptance
+  decisions instead of presenting the work as passively accepted AI output.
+- **Validation**: focused cleaning tests passed; broad ruff and pytest checks passed before and
+  after the real transform; `transform` generated typed Parquet outputs from the staged Amsterdam
+  files; generated counts were inspected from Parquet.
+- **Modifications**: Calendar aggregation was limited to source columns actually present in the
+  staged calendar file; missing listing prices were preserved as nulls instead of being imputed
+  or blanket-quarantined.
+- **Rejected suggestions**: no invented calendar price or revenue fields, no winsorised canonical
+  prices, no orchestration framework, no full calendar pandas load, and no broad enrichment logic
+  were added.

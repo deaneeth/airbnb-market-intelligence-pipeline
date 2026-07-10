@@ -171,3 +171,54 @@ Each entry follows this structure:
   downstream analysis may exclude them without a new documented assumption and row count.
 - **Alternative considered**: Quarantine all outliers during validation. Rejected because the
   validation step must not delete or quarantine plausible source records.
+
+### [2026-07-11] Listing price parsing convention
+
+- **Component**: cleaning
+- **Assumption**: Listing price strings use comma thousands separators and dot decimal separators,
+  for example `$1,075.00`.
+- **Rationale**: The staged Amsterdam detailed listings sample contains `$94.00`, `$313.67`,
+  and `$1,075.00`, which confirms the exported convention for this snapshot.
+- **Consequence**: `price_raw` preserves the source string and `price` strips currency symbols
+  plus comma separators before float conversion.
+- **Alternative considered**: Treat dots as thousands separators. Rejected because sampled
+  values use dots as decimal separators.
+
+### [2026-07-11] Missing listing price handling
+
+- **Component**: cleaning
+- **Assumption**: A blank listing price is unknown source data, not a zero price and not a
+  malformed price.
+- **Rationale**: Validation already reports missing prices separately, and silently treating
+  missing prices as invalid would remove many otherwise usable listing records from non-price
+  analyses.
+- **Consequence**: Rows with missing `price_raw` remain in `listings_master.parquet` with
+  `price = null`, `price_log = null`, and `is_price_usable = false`. Non-empty unparseable
+  prices and non-positive prices are quarantined.
+- **Alternative considered**: Quarantine every missing price. Rejected because unknown values
+  should remain null unless a downstream method requires a price-complete analysis view.
+
+### [2026-07-11] Calendar aggregation fields
+
+- **Component**: cleaning
+- **Assumption**: The Amsterdam staged calendar file contains `listing_id`, `date`, `available`,
+  `minimum_nights`, and `maximum_nights`; it does not contain a calendar price column.
+- **Rationale**: The actual staged header was inspected before transformation. Adding price or
+  revenue fields would invent source data.
+- **Consequence**: `calendar_agg.parquet` contains monthly availability fields and
+  `occupancy_proxy`; no calendar price or `revenue_proxy` is created from this file.
+- **Alternative considered**: Join detailed listing price into calendar aggregation to estimate
+  revenue. Rejected because that would mix quote prices with calendar availability and would need
+  a separate documented analytical method.
+
+### [2026-07-11] Long-stay listing treatment
+
+- **Component**: cleaning
+- **Assumption**: Listings with `minimum_nights > 365` are retained but flagged as
+  `is_long_stay = true`.
+- **Rationale**: Such listings are valid records but are not comparable in nightly-price analysis
+  against short-stay listings.
+- **Consequence**: `listings_master.parquet` preserves the rows and downstream price comparisons
+  can exclude them explicitly with a reported row count.
+- **Alternative considered**: Quarantine long-stay listings. Rejected because long minimum stays
+  are unusual-but-plausible source values, not invalid data.

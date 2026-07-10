@@ -81,32 +81,47 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
 
 - **Source files**: `listings_detailed` (staged CSV)
 - **Key transformations**:
-  - Price string parsed to float; currency symbol and thousands separator stripped
-  - Boolean flags (`host_is_superhost`, `host_identity_verified`) normalised from `t`/`f`
-  - `host_since` and `last_review` parsed to date with explicit format string
-  - Latitude and longitude rounded to 5 decimal places; originals kept as `_raw` columns
+  - `id` renamed to `listing_id` and `host_id` typed as integer identifiers
+  - Source `price` preserved as `price_raw` and parsed into numeric `price`
+  - `price_log` and `is_price_usable` derived without imputing missing prices
+  - `room_type` normalised while preserving `room_type_raw`
+  - `neighbourhood_cleansed` and `city` stripped and Unicode-normalised while preserving raw fields
+  - `host_since` and `last_review` parsed with explicit `%Y-%m-%d` format
+  - Latitude and longitude rounded to 5 decimal places; originals kept as raw columns
   - `minimum_nights > 365` flagged as `is_long_stay`; rows retained
-  - Host tenure, portfolio size, host segment, review frequency, price per bedroom,
-    and distance to city centre added as derived columns
-  - Neighbourhood aggregates (listing count, median price) broadcast to each row
-  - `availability_rate` and `occupancy_proxy` joined from `calendar_agg.parquet`
-- **Filters and exclusions**: Rows with unparseable price or out-of-range coordinates
-  go to `listings_quarantine.parquet` with reason code. No rows silently dropped.
-- **Output grain**: one row per listing in the snapshot
+- **Filters and exclusions**: Rows with invalid or duplicate listing IDs, missing host IDs,
+  non-empty unparseable prices, non-positive prices, missing coordinates, or out-of-range
+  coordinates go to `listings_quarantine.parquet` with reason code. The Amsterdam run produced
+  0 quarantined rows.
+- **Output grain**: one row per valid listing in the snapshot
 - **Primary key**: `listing_id`
-- **Foreign keys**: none (self-contained; host dimension derived in database.py)
-- **Consumed by**: `database.py` (all dimension and fact tables), notebooks 02 and 03,
-  EDA figures, OLS model, ML experiment
+- **Foreign keys**: `host_id` references the source host account identifier
+- **Consumed by**: later database loading, analysis notebooks, figures, and models
 
 ### listings_quarantine.parquet
 
 - **Source files**: `listings_detailed` (staged CSV)
-- **Key transformations**: none; preserves original field values alongside reason code
+- **Key transformations**: one quarantine row is written for each exclusion reason, carrying
+  source file, source row index, listing identifier if available, reason code, raw failing value,
+  and snapshot date
 - **Filters and exclusions**: n/a (this IS the exclusion output)
-- **Output grain**: one row per excluded source row
-- **Primary key**: `source_row_index` (0-based position in the staged file)
+- **Output grain**: one row per excluded source-row reason
+- **Primary key**: (`source_row_index`, `reason`)
 - **Foreign keys**: none
 - **Consumed by**: data quality report, `docs/assumptions.md` quarantine count entry
+
+### listings_analysis_view.parquet
+
+- **Source files**: `listings_master.parquet`
+- **Key transformations**:
+  - Preserves every canonical listing row
+  - Adds `is_price_outlier_iqr` using a 3 IQR rule on usable positive prices
+  - Does not winsorise or overwrite canonical prices
+- **Filters and exclusions**: none
+- **Output grain**: one row per valid listing in the snapshot
+- **Primary key**: `listing_id`
+- **Foreign keys**: `listing_id` references `listings_master.parquet`
+- **Consumed by**: later robust price analyses that need explicit outlier flags
 
 ### calendar_agg.parquet
 
@@ -115,13 +130,12 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
   - Aggregated by `listing_id` and calendar month (`YYYY-MM`)
   - `availability_rate`: share of days marked available by the host
   - `occupancy_proxy`: 1 - availability_rate
-  - `median_calendar_price`: median nightly price from calendar rows
-  - `revenue_proxy`: median_calendar_price * occupancy_proxy * days_observed
-- **Filters and exclusions**: rows with null `listing_id` excluded; count logged
+  - Minimum and maximum nights summarised from source calendar rows
+- **Filters and exclusions**: rows with null `listing_id` excluded by the DuckDB query
 - **Output grain**: one row per (listing_id, calendar month)
 - **Primary key**: (`listing_id`, `month`)
 - **Foreign keys**: `listing_id` references `listings_master.parquet`
-- **Consumed by**: `enrichment.py` (joined to listings_master), `database.py` (fact_calendar)
+- **Consumed by**: later database loading and availability analysis
 
 ---
 
