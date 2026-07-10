@@ -20,17 +20,9 @@ dependencies = [
     "matplotlib>=3.8",
     "seaborn>=0.13",
     "rapidfuzz>=3.6",
-    "requests>=2.31",
 ]
 
 [project.optional-dependencies]
-geo = [
-    "geopandas>=0.14",
-    "folium>=0.15",
-]
-dashboard = [
-    "streamlit>=1.30",
-]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.1",
@@ -62,7 +54,7 @@ select = [
     "RUF", # ruff-specific
 ]
 ignore = [
-    "E501",   # line too long — handled by formatter
+    "E501",   # line too long - handled by formatter
     "B008",   # do not perform function calls in default arguments (needed for CLI)
 ]
 

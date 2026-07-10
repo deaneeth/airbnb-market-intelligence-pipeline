@@ -43,7 +43,7 @@ Each session entry includes:
 - **Validation**: `pytest tests/ -q` -> 21 passed; `ruff check src/ tests/` -> all checks passed
 - **Modifications**:
   - Removed verbose module-level docstrings from all stub modules
-  - Replaced "phase contract" with "pipeline step contract" in AGENTS.md
+  - Replaced ambiguous milestone wording with "pipeline step contract" in AGENTS.md
   - Moved column name constants from AGENTS.md into `utils.py` where they are actually used
   - Removed `tmp_path_factory` fixture override from conftest.py (redundant)
   - Simplified `_write_city_yaml` in test_config.py to remove unused parameter docstring
@@ -79,3 +79,26 @@ Each session entry includes:
 - **Modifications**: Replaced arrows, em dashes, and dash glyphs in new docs
   with ASCII equivalents.
 - **Rejected suggestions**: none in this session
+
+### 2026-07-11 - Foundation verification and dataset discovery
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - verified foundation gates against the current repository state
+  - tightened configuration validation for duplicate YAML keys
+  - removed optional dependencies that belong to later work
+  - generated `docs/data_dictionary.md` from the live Amsterdam source files and official
+    Inside Airbnb dictionary sheets
+  - added dataset-discovery ambiguity assumptions for price currency, host response coverage, review
+    score coverage, and anonymized coordinates
+- **Nature**: reviewed, generated, validated, and refactored
+- **Validation**: official Inside Airbnb download, assumptions, and data dictionary pages were
+  consulted; live configured Amsterdam files were inspected without committing raw data;
+  data dictionary coverage check confirmed all 127 configured source columns were documented;
+  `python -m ruff check src/ tests/ conftest.py` -> all checks passed;
+  `python -m pytest tests/ -v --basetemp=.pytest_tmp` -> 22 passed; clean temporary venv
+  install with `pip install -e ".[dev]"` succeeded and its pytest run passed with 22 tests
+- **Modifications**: Redacted free-text, name, URL, image, permit, and review-comment samples
+  from the committed data dictionary.
+- **Rejected suggestions**: no optional dashboard, geospatial package, ingestion command, or
+  downstream transform code was added because those belong to later work.
