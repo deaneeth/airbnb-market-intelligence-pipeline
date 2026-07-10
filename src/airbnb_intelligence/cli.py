@@ -5,6 +5,8 @@ import logging
 import sys
 
 from airbnb_intelligence.ingestion import run_ingestion
+from airbnb_intelligence.profiling import profile_city
+from airbnb_intelligence.validation import validate_city
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -42,6 +44,22 @@ def main() -> None:
 
     if args.command == "download":
         run_ingestion(args.config, city_key=args.city)
+        return
+    if args.command == "profile":
+        if args.city is None:
+            parser.error("--city is required for profile")
+        from airbnb_intelligence.config import load_config
+
+        city = load_config(args.config)[args.city]
+        profile_city(city.key, city.snapshot_date)
+        return
+    if args.command == "validate":
+        if args.city is None:
+            parser.error("--city is required for validate")
+        from airbnb_intelligence.config import load_config
+
+        city = load_config(args.config)[args.city]
+        validate_city(city.key, city.snapshot_date)
         return
 
     raise NotImplementedError(f"'{args.command}' is not yet implemented.")
