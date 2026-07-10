@@ -1,0 +1,61 @@
+# ── Data directories ─────────────────────────────────────────────────────────
+data/raw/
+data/staged/
+data/processed/
+db/*.duckdb
+db/*.db
+
+!data/raw/.gitkeep
+!data/staged/.gitkeep
+!data/processed/.gitkeep
+!data/sample/.gitkeep
+!db/.gitkeep
+
+# ── Python build artifacts ───────────────────────────────────────────────────
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+src/*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+*.whl
+
+# ── Secrets and credentials ──────────────────────────────────────────────────
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+
+# ── Tool caches ──────────────────────────────────────────────────────────────
+.pytest_cache/
+.pytest_tmp/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ── IDE and OS ───────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# ── Notebooks with outputs ───────────────────────────────────────────────────
+# Commit notebooks with outputs cleared.
+# Run: jupyter nbconvert --clear-output --inplace notebooks/*.ipynb
+
+# ── Agent configuration ──────────────────────────────────────────────────────
+.agents/
+
+# ── Private assessment and personal files ────────────────────────────────────
+*.pdf
+*ROADMAP*
+*Assessment*
