@@ -133,3 +133,41 @@ Each entry follows this structure:
   neighbourhood-scale analysis, not address-level claims.
 - **Alternative considered**: Treat coordinates as exact property locations. Rejected because
   the official assumptions page explicitly says coordinates are anonymized.
+
+### [2026-07-11] Coordinate precision for canonical listings
+
+- **Component**: validation, cleaning
+- **Assumption**: Canonical listing latitude and longitude are rounded to 5 decimal places,
+  while original coordinate values are preserved in `latitude_raw` and `longitude_raw`.
+- **Rationale**: Five decimal places is precise enough for neighbourhood-scale grouping while
+  avoiding false address-level precision.
+- **Consequence**: Geographic grouping and distance calculations use rounded coordinates, and
+  raw coordinates remain available for audit.
+- **Alternative considered**: Keep only the raw coordinate fields. Rejected because downstream
+  grouping would be less deterministic and would imply more precision than the source supports.
+
+### [2026-07-11] Fuzzy duplicate candidate threshold
+
+- **Component**: validation
+- **Assumption**: Potential duplicate listings are flagged only when listings share the same
+  `host_id`, rounded coordinate block, and have normalised `name` similarity of at least 90
+  using RapidFuzz.
+- **Rationale**: Blocking by host and rounded coordinates prevents all-pairs comparison and
+  keeps the signal conservative.
+- **Consequence**: Fuzzy matches are labelled as unusual candidate signals, not confirmed
+  duplicates, and are not deleted by validation.
+- **Alternative considered**: Compare every listing name against every other listing. Rejected
+  because it is slow, noisy, and not needed for a conservative quality signal.
+
+### [2026-07-11] Outlier visibility
+
+- **Component**: validation, reporting
+- **Assumption**: Plausible extreme values for price, availability, minimum nights, review count,
+  and review frequency are flagged as unusual using a 3 IQR rule; price is also flagged above
+  the 99th percentile.
+- **Rationale**: Extreme values are analytically important but are not invalid solely because
+  they are rare.
+- **Consequence**: Validation reports outliers separately from missing and invalid records. No
+  downstream analysis may exclude them without a new documented assumption and row count.
+- **Alternative considered**: Quarantine all outliers during validation. Rejected because the
+  validation step must not delete or quarantine plausible source records.

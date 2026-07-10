@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 
 from airbnb_intelligence.config import REQUIRED_FILE_KEYS
-from airbnb_intelligence.ingestion import IngestionError, run_ingestion, sha256_file
+from airbnb_intelligence.ingestion import IngestionError, count_rows, run_ingestion, sha256_file
 
 
 def _write_config(tmp_path: Path, snapshot_date: str = "2026-06-15") -> Path:
@@ -195,3 +195,10 @@ def test_changed_file_creates_versioned_raw_file(tmp_path: Path) -> None:
 
     raw_files = sorted((raw_root / "amsterdam" / "2026-06-15").glob("listings_detailed.*.csv.gz"))
     assert len(raw_files) == 1
+
+
+def test_count_rows_handles_quoted_newlines(tmp_path: Path) -> None:
+    csv_path = tmp_path / "quoted.csv"
+    csv_path.write_text('id,description\n1,"line one\nline two"\n2,"plain"\n', encoding="utf-8")
+
+    assert count_rows(csv_path) == 2

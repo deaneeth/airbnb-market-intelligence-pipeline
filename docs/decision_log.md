@@ -134,3 +134,29 @@ the choice made, the rationale, and the trade-offs accepted.
   The production strategy shows how the design would scale without adding unnecessary code now.
 - **Trade-offs accepted**: The current implementation does not include production upsert SQL or
   partition orchestration.
+
+### [2026-07-11] Chunked profiling for staged CSV files
+
+- **Context**: The calendar and detailed review files are large enough that loading every file
+  fully into pandas for profiling would be wasteful on an 8 GB development machine.
+- **Options considered**:
+  1. Load each staged CSV fully into pandas
+  2. Profile staged CSV files in chunks and aggregate deterministic summary statistics
+- **Decision**: Profile CSV files in chunks, with redaction for sensitive categorical examples.
+- **Rationale**: Chunking keeps memory bounded and still produces the required row counts,
+  null rates, inferred types, distinct estimates, numeric summaries, and top categorical values.
+- **Trade-offs accepted**: Distinct counts are approximate when a column has more than 100,000
+  observed values in the profiler's bounded tracking set.
+
+### [2026-07-11] Validation reports issues without deleting rows
+
+- **Context**: Dataset quality checks must distinguish missing, invalid, duplicate, and unusual
+  records without changing the source files.
+- **Options considered**:
+  1. Quarantine or edit records during validation
+  2. Produce a structured issue table and leave row treatment to later cleaning decisions
+- **Decision**: Validation writes structured reports and leaves every staged row untouched.
+- **Rationale**: Validation is evidence collection. Row exclusion belongs in cleaning, where
+  every exclusion can be recorded with a reason.
+- **Trade-offs accepted**: Later cleaning code must explicitly consume or reinterpret these
+  findings instead of assuming validation already removed bad rows.
