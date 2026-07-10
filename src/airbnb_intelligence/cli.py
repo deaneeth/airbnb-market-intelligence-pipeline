@@ -4,6 +4,8 @@ import argparse
 import logging
 import sys
 
+from airbnb_intelligence.ingestion import run_ingestion
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -37,6 +39,10 @@ def main() -> None:
         format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
+
+    if args.command == "download":
+        run_ingestion(args.config, city_key=args.city)
+        return
 
     raise NotImplementedError(f"'{args.command}' is not yet implemented.")
 
