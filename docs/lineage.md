@@ -49,6 +49,34 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
 - **Foreign keys**: none
 - **Consumed by**: later profiling, validation, transformation, and report provenance summary
 
+### profile.json
+
+- **Source files**: staged files listed in `manifest.json`
+- **Key transformations**:
+  - CSV files profiled in chunks
+  - GeoJSON feature properties converted to a tabular profile input
+  - Sensitive categorical examples redacted from committed code paths
+  - Row counts, column counts, null rates, distinct counts, numeric summaries, and top categories recorded
+- **Filters and exclusions**: none
+- **Output grain**: one profile section per staged source file
+- **Primary key**: `file_key`
+- **Foreign keys**: `file_key` references manifest entries
+- **Consumed by**: `reports/data_quality_report.md`, report quality summary
+
+### validation_report.json and data_quality_issues.csv
+
+- **Source files**: staged listings, calendar, and review summary files listed in `manifest.json`
+- **Key transformations**:
+  - Domain rules classify findings as missing, invalid, duplicate, or unusual
+  - Join coverage checks compare calendar and review summary `listing_id` values to detailed listings
+  - Fuzzy duplicate candidates are blocked by host and rounded coordinates
+  - Outliers are reported separately without deleting staged rows
+- **Filters and exclusions**: none
+- **Output grain**: one issue row per validation finding
+- **Primary key**: no single source key; issue rows carry `rule_id`, `file_key`, `row_index`, and `source_id`
+- **Foreign keys**: source identifiers reference staged source rows
+- **Consumed by**: manual data quality review, later cleaning decisions, report quality summary
+
 ### listings_master.parquet
 
 - **Source files**: `listings_detailed` (staged CSV)

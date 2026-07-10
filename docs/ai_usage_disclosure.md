@@ -131,3 +131,26 @@ Each session entry includes:
   transformation, validation, or analysis code.
 - **Rejected suggestions**: no shell download tools, framework orchestration, or full-file
   pandas reads for large source files were added.
+
+### 2026-07-11 - Data quality profiling and validation
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/profiling.py`: chunked staged-file profiling and Markdown report output
+  - `src/airbnb_intelligence/validation.py`: explicit domain rules, duplicate candidates,
+    outlier reporting, coordinate standardisation helper, and validation outputs
+  - `src/airbnb_intelligence/cli.py`: wired `profile` and `validate` commands
+  - `tests/test_validation.py`: fixture-based rule tests
+  - `docs/assumptions.md`, `docs/decision_log.md`, and `docs/lineage.md`: quality-method documentation
+- **Nature**: generated, reviewed, and refactored
+- **Author direction and decisions**: The developer required a fresh branch from `dev`, no commit
+  by the assistant, simple reviewable code, no broad abstractions, no public process wording, and
+  explicit credit for developer decisions and rejected over-broad suggestions.
+- **Validation**: `python -m ruff check src/ tests/ conftest.py` passed twice;
+  `python -m pytest tests/ -v --basetemp=.pytest_tmp` passed twice with 48 tests; real
+  `profile` and `validate` commands generated the quality report, profile JSON, validation
+  JSON, and issue table from the staged Amsterdam files.
+- **Modifications**: Kept validation as report-only evidence collection; no staged source rows
+  are edited, deleted, or quarantined here.
+- **Rejected suggestions**: no all-pairs fuzzy matching, no framework profiler, no full-load
+  large-file profiling path, and no cleaning transformations were added.
