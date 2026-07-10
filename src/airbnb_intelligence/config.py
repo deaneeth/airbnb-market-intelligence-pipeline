@@ -88,15 +88,11 @@ def load_config(config_path: str | Path = "configs/cities.yml") -> dict[str, Cit
 
 def _validate_city(key: str, entry: object) -> CityConfig:
     if not isinstance(entry, dict):
-        raise ConfigValidationError(
-            f"City '{key}': entry must be a mapping, got {type(entry)}"
-        )
+        raise ConfigValidationError(f"City '{key}': entry must be a mapping, got {type(entry)}")
 
     for field in ("name", "country", "snapshot_date", "files"):
         if field not in entry:
-            raise ConfigValidationError(
-                f"City '{key}': missing required field '{field}'"
-            )
+            raise ConfigValidationError(f"City '{key}': missing required field '{field}'")
 
     snapshot_date: str = entry["snapshot_date"]
     if not snapshot_date or not _SNAPSHOT_DATE_RE.match(snapshot_date):
@@ -106,9 +102,7 @@ def _validate_city(key: str, entry: object) -> CityConfig:
 
     files: object = entry["files"]
     if not isinstance(files, dict):
-        raise ConfigValidationError(
-            f"City '{key}': 'files' must be a mapping of key to URL"
-        )
+        raise ConfigValidationError(f"City '{key}': 'files' must be a mapping of key to URL")
 
     _validate_file_urls(key, files)
 

@@ -16,6 +16,8 @@ Each session entry includes:
 - **Tool**: AI tool and model version
 - **Assisted work**: which file, function, or analysis section
 - **Nature**: generated / reviewed / debugged / refactored
+- **Author direction and decisions**: decisions, scope limits, rejected suggestions, and manual
+  acceptance made by the developer
 - **Validation**: how the output was checked
 - **Modifications**: what was changed from the AI output
 - **Rejected suggestions**: any AI suggestion not used, with reason
@@ -73,6 +75,8 @@ Each session entry includes:
   - cleaned non-ASCII punctuation in new documentation files before commit
   - ran required pre-commit lint and test commands
 - **Nature**: reviewed, validated, and prepared for git commit
+- **Author direction and decisions**: The developer required a clean `dev` workflow, detailed
+  commit evidence, exact source verification, and no unverified production-readiness claims.
 - **Validation**: `python -m ruff check src/ tests/ conftest.py` -> all checks passed;
   `python -m pytest tests/ -v --basetemp=.pytest_tmp` -> 21 passed; official Inside
   Airbnb data page parsed for the seven Amsterdam 2026-06-15 download URLs
@@ -92,6 +96,9 @@ Each session entry includes:
   - added dataset-discovery ambiguity assumptions for price currency, host response coverage, review
     score coverage, and anonymized coordinates
 - **Nature**: reviewed, generated, validated, and refactored
+- **Author direction and decisions**: The developer selected Amsterdam as the primary city,
+  required source-backed facts, rejected broad optional work, and required neutral public wording
+  in branch names, PR text, and repository documents.
 - **Validation**: official Inside Airbnb download, assumptions, and data dictionary pages were
   consulted; live configured Amsterdam files were inspected without committing raw data;
   data dictionary coverage check confirmed all 127 configured source columns were documented;
@@ -102,3 +109,25 @@ Each session entry includes:
   from the committed data dictionary.
 - **Rejected suggestions**: no optional dashboard, geospatial package, ingestion command, or
   downstream transform code was added because those belong to later work.
+
+### 2026-07-11 - Ingestion manifest implementation
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/ingestion.py`: download, extraction, manifest, retry, checksum,
+    and run metadata implementation
+  - `src/airbnb_intelligence/cli.py`: wired the `download` command to ingestion
+  - `tests/test_ingestion.py`: fixture-based ingestion tests with no real network calls
+  - `docs/decision_log.md` and `docs/lineage.md`: ingestion provenance documentation
+- **Nature**: generated, reviewed, and refactored
+- **Author direction and decisions**: The developer required a fresh branch from `dev`, no commit
+  by the assistant, minimal readable code, no PR until manual review, and a strict scope limited
+  to ingestion and manifest work. The developer also rejected unnecessary comments, over-broad
+  helpers, and public wording that could make the repository look process-generated.
+- **Validation**: focused ingestion tests and ruff were run during implementation; the real
+  Amsterdam download command succeeded, a second run skipped all seven files, and the generated
+  manifest recorded seven unique staged paths.
+- **Modifications**: Kept implementation limited to ingestion and did not add orchestration,
+  transformation, validation, or analysis code.
+- **Rejected suggestions**: no shell download tools, framework orchestration, or full-file
+  pandas reads for large source files were added.

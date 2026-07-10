@@ -22,6 +22,33 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
 
 ## Parquet Outputs
 
+### pipeline_runs.parquet
+
+- **Source files**: ingestion run metadata produced by `run_ingestion`
+- **Key transformations**:
+  - One metadata row appended per ingestion run
+  - Row counts stored as a JSON object keyed by configured file key
+  - Output paths stored as a JSON object so later steps can find the manifest
+- **Filters and exclusions**: none
+- **Output grain**: one row per ingestion run
+- **Primary key**: `run_id`
+- **Foreign keys**: none
+- **Consumed by**: reproducibility checks, report provenance summary
+
+### manifest.json
+
+- **Source files**: configured Inside Airbnb URLs in `configs/cities.yml`
+- **Key transformations**:
+  - Raw source bytes downloaded to `data/raw/<city>/<snapshot>/`
+  - Gzip files extracted to `data/staged/<city>/<snapshot>/`
+  - SHA-256, byte size, row count, status, and source URL recorded per configured file
+  - Changed raw files within a snapshot receive a checksum-suffixed filename
+- **Filters and exclusions**: failed downloads are recorded with `status = "failed"` and stop the run
+- **Output grain**: one file entry per configured source file
+- **Primary key**: (`city_key`, `snapshot_date`, `file_key`)
+- **Foreign keys**: none
+- **Consumed by**: later profiling, validation, transformation, and report provenance summary
+
 ### listings_master.parquet
 
 - **Source files**: `listings_detailed` (staged CSV)

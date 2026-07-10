@@ -106,3 +106,31 @@ the choice made, the rationale, and the trade-offs accepted.
   required by the current foundation and dataset discovery work.
 - **Trade-offs accepted**: Later geospatial or dashboard work must re-add the packages with
   their own validation and documentation.
+
+### [2026-07-11] Versioned raw files for changed source bytes
+
+- **Context**: The same city snapshot can be re-run, and a source file may change after a
+  previous manifest was written. Overwriting the old raw file would destroy provenance.
+- **Options considered**:
+  1. Overwrite the raw file and keep only the latest checksum
+  2. Keep the original raw file and write changed bytes to a checksum-suffixed filename
+- **Decision**: Keep the original file and write changed bytes to a versioned raw filename.
+- **Rationale**: The manifest can trace exactly which source bytes produced each staged file,
+  and reruns remain auditable.
+- **Trade-offs accepted**: A changed source can create multiple raw files for the same file key
+  within one snapshot directory. The manifest identifies the active version.
+
+### [2026-07-11] Incremental production refresh strategy
+
+- **Context**: The local project stores full snapshot outputs, but a production system would
+  need smaller refresh work when only some listings or listing-date records change.
+- **Options considered**:
+  1. Rebuild all downstream tables after every changed source file
+  2. Upsert changed listing records and rebuild only affected listing-date partitions
+- **Decision**: Keep full local snapshot storage now, and document the production strategy as
+  listing-level upserts plus listing-date partition rebuilds keyed by `snapshot_date` and source
+  checksum.
+- **Rationale**: Full local snapshots are simpler and safer for this assessment-scale project.
+  The production strategy shows how the design would scale without adding unnecessary code now.
+- **Trade-offs accepted**: The current implementation does not include production upsert SQL or
+  partition orchestration.
