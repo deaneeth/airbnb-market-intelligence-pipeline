@@ -358,8 +358,7 @@ def count_rows(path: Path) -> int:
     if path.suffix.lower() == ".geojson":
         data = json.loads(path.read_text(encoding="utf-8"))
         return len(data.get("features", []))
-    with path.open("rb") as handle:
-        return max(sum(1 for _line in handle) - 1, 0)
+    return int(sum(len(chunk) for chunk in pd.read_csv(path, chunksize=100_000)))
 
 
 def source_filename(source_url: str) -> str:
