@@ -160,3 +160,33 @@ the choice made, the rationale, and the trade-offs accepted.
   every exclusion can be recorded with a reason.
 - **Trade-offs accepted**: Later cleaning code must explicitly consume or reinterpret these
   findings instead of assuming validation already removed bad rows.
+
+### [2026-07-11] Deterministic listing cleaning outputs
+
+- **Context**: Staged detailed listings need typed Parquet outputs while preserving raw values
+  and making every excluded source row auditable.
+- **Options considered**:
+  1. Drop missing prices and keep only price-complete listings in the canonical table
+  2. Preserve missing prices as null and quarantine only invalid source values
+  3. Impute missing prices with a sentinel or neighbourhood median
+- **Decision**: Preserve missing prices as null, quarantine invalid IDs, duplicate IDs,
+  non-empty unparseable prices, non-positive prices, and invalid coordinates.
+- **Rationale**: This keeps the canonical output useful for non-price analysis without hiding
+  data quality issues or inventing prices.
+- **Trade-offs accepted**: Price-complete analysis must filter `is_price_usable = true` rather
+  than assuming every listing has a valid price.
+
+### [2026-07-11] Calendar aggregation from available source columns only
+
+- **Context**: Monthly calendar aggregation is useful for later joins, but the staged Amsterdam
+  calendar file does not include price.
+- **Options considered**:
+  1. Aggregate only columns present in the calendar file
+  2. Join listing-level price into the calendar aggregation
+  3. Skip calendar aggregation until later analysis
+- **Decision**: Aggregate listing-month availability, `occupancy_proxy`, and minimum/maximum
+  nights from the calendar file only.
+- **Rationale**: The output remains traceable to actual source columns and avoids creating a
+  revenue estimate from mixed-grain inputs.
+- **Trade-offs accepted**: Revenue proxy work is deferred until a documented method can combine
+  price and availability without implying observed earnings.
