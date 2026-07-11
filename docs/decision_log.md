@@ -318,3 +318,33 @@ the choice made, the rationale, and the trade-offs accepted.
   complete-case row filter.
 - **Trade-offs accepted**: The model is not optimised for prediction and may omit useful fields
   such as amenities or exact property size.
+
+### [2026-07-11] Focused predictive benchmark instead of broad model search
+
+- **Context**: The nightly-price prediction experiment needs to compare practical model families
+  without turning the assignment into an open-ended modelling contest.
+- **Options considered**:
+  1. Compare one median baseline, one regularised linear model, one bagged tree model, and one
+     gradient-boosting model with fixed modest settings
+  2. Run a broad hyperparameter search over many algorithms
+  3. Build a feature-heavy model from all available listing columns
+- **Decision**: Use the four requested model families with a small leakage-reviewed feature set,
+  training-fold cross-validation, final test metrics, error slices, and permutation importance.
+- **Rationale**: This gives an honest benchmark against a simple baseline while keeping the code
+  explainable and reproducible on the local machine.
+- **Trade-offs accepted**: The experiment may not find the absolute best predictive model, and it
+  is not evidence of production readiness.
+
+### [2026-07-12] Strict exclusion of calendar-derived predictive features
+
+- **Context**: `availability_rate` is useful analytically but is derived from the future calendar
+  window relative to the listing snapshot.
+- **Options considered**:
+  1. Keep `availability_rate` as a feature with a caveat
+  2. Remove it from predictive features and make the leakage check reject it
+- **Decision**: Remove `availability_rate` from predictive features and add it to
+  `FORBIDDEN_FEATURES`.
+- **Rationale**: The stricter rule prevents future-calendar leakage and avoids relying on caveats
+  for a feature that should not be available in the stated prediction task.
+- **Trade-offs accepted**: Predictive performance is slightly lower, but the experiment is more
+  defensible.

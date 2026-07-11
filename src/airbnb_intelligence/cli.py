@@ -8,6 +8,7 @@ from airbnb_intelligence.cleaning import run_cleaning
 from airbnb_intelligence.database import run_database
 from airbnb_intelligence.enrichment import run_enrichment
 from airbnb_intelligence.ingestion import run_ingestion
+from airbnb_intelligence.ml import run_ml_experiment
 from airbnb_intelligence.profiling import profile_city
 from airbnb_intelligence.reporting import run_eda
 from airbnb_intelligence.statistics import run_statistics
@@ -83,6 +84,7 @@ def main() -> None:
             parser.error("--city is required for analyse")
         run_eda(args.config, city_key=args.city)
         run_statistics(args.config, city_key=args.city)
+        run_ml_experiment(args.config, city_key=args.city)
         return
 
     raise NotImplementedError(f"'{args.command}' is not yet implemented.")

@@ -387,3 +387,59 @@ Each entry follows this structure:
 - **Alternative considered**: Use every numeric field and every low-cardinality feature for
   smoothing. Rejected because low-unique-count features can produce unstable LOWESS curves and
   distract from interpretable diagnostics.
+
+### [2026-07-11] Predictive experiment leakage policy and feature set
+
+- **Component**: ml
+- **Assumption**: The nightly-price prediction experiment uses `price_log` as the target and
+  excludes identifiers, raw price, parsed price, `price_log` as a feature, `revenue_proxy`,
+  `occupancy_proxy`, `availability_rate`, and `review_frequency`.
+- **Rationale**: Price-derived fields and post-booking demand signals would leak information
+  that would not be available for a clean pre-booking prediction task. `availability_rate` is
+  also excluded because it is derived from future calendar availability relative to the listing
+  snapshot.
+- **Consequence**: `ml_experiment_results.csv`, `ml_test_predictions.csv`, and
+  `ml_feature_importance.csv` evaluate only the documented non-price feature set.
+- **Alternative considered**: Include `availability_rate`, `review_frequency`, and
+  `revenue_proxy` to improve accuracy. Rejected because they are leakage-prone for the stated
+  prediction task.
+
+### [2026-07-11] Predictive experiment validation and metrics
+
+- **Component**: ml
+- **Assumption**: Each listing appears once in the modelling frame, so the experiment uses a
+  reproducible 80/20 train-test split with `random_state = 42` and 5-fold cross-validation on
+  the training set. MAPE is reported only where true price is at least 1.
+- **Rationale**: There are no repeated listing observations requiring a grouped split. The test
+  set must remain untouched until final evaluation.
+- **Consequence**: Reported test metrics are based on 5,101 training rows and 1,276 test rows.
+  Cross-validation mean and standard deviation are reported for log-scale MAE and RMSE.
+- **Alternative considered**: Tune models on the test set or use full-dataset medians for
+  imputation. Rejected because both would leak test-set information.
+
+### [2026-07-11] Limited amenity features and no interactions
+
+- **Component**: ml
+- **Assumption**: Amenity feature engineering is limited to amenity count and six pre-selected
+  flags: wifi, kitchen, washer, air conditioning, dedicated workspace, and free parking. No
+  interaction terms are included.
+- **Rationale**: These amenities are common, interpretable, and relevant to guest-visible listing
+  value. Avoiding interactions keeps the experiment reviewable and prevents arbitrary feature
+  expansion.
+- **Consequence**: `ml_model_card.md` documents the exact feature set and notes that feature
+  importance is predictive association, not causal evidence.
+- **Alternative considered**: Generate one-hot features for every amenity and multiple
+  interactions. Rejected because it would create hundreds of sparse features from one snapshot.
+
+### [2026-07-12] Calendar-derived availability excluded from prediction
+
+- **Component**: ml
+- **Assumption**: `availability_rate` is forbidden as a predictive feature because it is derived
+  from the calendar window after the listing snapshot date.
+- **Rationale**: The predictive experiment should use listing attributes available before
+  prediction. Future calendar availability can leak host strategy and future availability
+  information into the model.
+- **Consequence**: `availability_rate` is included in `FORBIDDEN_FEATURES`; attempting to add it
+  to the model feature columns raises a leakage validation error.
+- **Alternative considered**: Keep `availability_rate` with a caveat. Rejected because the
+  stricter no-future-calendar rule is cleaner and easier to defend.

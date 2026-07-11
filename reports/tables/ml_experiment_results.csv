@@ -1,0 +1,5 @@
+model_id,model_name,n_train,n_test,cv_mae_log_mean,cv_mae_log_std,cv_rmse_log_mean,cv_rmse_log_std,mae_log,rmse_log,r2_log,mae_original,rmse_original,mape_original,best_params
+M0,Median price baseline,5101,1276,0.441236,0.005386,0.579399,0.007853,0.4227,0.560669,-0.002564,142.032241,238.930997,0.473245,{}
+M1,Regularised linear regression,5101,1276,0.25945,0.003888,0.356534,0.0085,0.262043,0.367973,0.568154,94.493827,175.81332,0.262412,{}
+M2,Random forest regressor,5101,1276,0.253173,0.00519,0.346298,0.008209,0.24969,0.332695,0.646986,91.952715,166.130387,0.251261,{}
+M3,Histogram gradient boosting regressor,5101,1276,0.249112,0.005003,0.34125,0.01013,0.244129,0.326461,0.660093,89.940906,163.678841,0.246263,{}

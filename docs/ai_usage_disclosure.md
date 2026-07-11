@@ -331,3 +331,56 @@ Each session entry includes:
 - **Rejected suggestions**: no causal coefficient wording, no automatic feature search, no
   placeholder fields for null source data, no notebook-only model, and no post-hoc external event
   data were added.
+
+### 2026-07-11 - Focused nightly-price prediction experiment
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/ml.py`: feature construction, leakage checks, train/test split,
+    four model families, cross-validation, test metrics, predictions, error slices, feature
+    importance, Ridge coefficients, and model card generation
+  - `src/airbnb_intelligence/cli.py`: wired the predictive experiment into the existing
+    `analyse` command
+  - `tests/test_ml.py`: fixture tests for leakage exclusion, split separation, baseline
+    behaviour, training-only imputation, metric schema, and prediction metric calculation
+  - `reports/tables/ml_*.csv` and `reports/ml_model_card.md`: generated predictive experiment
+    artifacts
+  - `docs/assumptions.md`, `docs/decision_log.md`, `docs/data_dictionary.md`, and
+    `docs/lineage.md`: documented feature policy, leakage policy, validation method, outputs,
+    and derived ML columns
+- **Nature**: generated, reviewed, debugged, and validated
+- **Author direction and decisions**: The developer required a clean branch from `dev`, no commit
+  by the assistant, minimal reviewable code, no public process wording, repeated verification, and
+  a leakage-aware experiment that is not oversold. The developer's role was not passive: the
+  feature scope, rejection of broad feature mining, manual commit boundary, and insistence on
+  defensible outputs shaped what was accepted.
+- **Validation**: focused ML tests passed; ruff checks passed; the real Amsterdam experiment
+  generated result tables and a model card; outputs were inspected for model coverage, test
+  metrics, feature importance, and error slices.
+- **Modifications**: Corrected the model card population count to use price-usable modelling rows,
+  limited `ml_test_predictions.csv` to the best model as documented, and removed
+  `availability_rate` from predictive features after identifying it as future calendar leakage.
+- **Rejected suggestions**: no SHAP dependency, no target-derived features, no full amenity
+  one-hot explosion, no test-set tuning, no production-readiness claim, and no causal feature
+  importance wording were added.
+
+### 2026-07-12 - Predictive leakage hardening
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/ml.py`: removed `availability_rate` from predictive features and
+    added it to the forbidden leakage feature set
+  - `tests/test_ml.py`: added a regression check proving `availability_rate` is rejected by the
+    leakage validator
+  - `reports/ml_model_card.md` and `reports/tables/ml_*.csv`: regenerated outputs after retraining
+  - `docs/assumptions.md` and `docs/decision_log.md`: documented the stricter no-future-calendar
+    rule
+- **Nature**: reviewed, corrected, regenerated, and validated
+- **Author direction and decisions**: The developer challenged the leakage risk and required the
+  feature to be fixed rather than merely caveated. The accepted decision was to prioritise
+  defensibility over slightly better metrics.
+- **Validation**: focused ML tests, full tests, ruff, direct experiment regeneration, and leakage
+  scans were run after the fix.
+- **Modifications**: Retrained all four model families without `availability_rate`; updated model
+  card metrics and feature importance.
+- **Rejected suggestions**: no caveat-only treatment for `availability_rate` was kept.
