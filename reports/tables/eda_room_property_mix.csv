@@ -1,0 +1,27 @@
+room_type,property_type,listing_count,median_latitude,median_longitude
+entire home/apt,Entire rental unit,4451,52.36432,4.88017
+entire home/apt,Entire condo,1803,52.36455,4.87898
+entire home/apt,Entire home,1183,52.37136,4.90058
+private room,Private room in rental unit,382,52.36593,4.88908
+private room,Room in hotel,348,52.36568,4.89436
+private room,Private room in bed and breakfast,301,52.36858,4.89111
+entire home/apt,Entire loft,251,52.36573,4.88616
+entire home/apt,Entire townhouse,225,52.3641,4.89943
+entire home/apt,Houseboat,190,52.37458,4.90345
+private room,Private room in condo,178,52.36832,4.88866
+private room,Private room in home,139,52.36708,4.89645
+entire home/apt,Boat,117,52.37425,4.89456
+entire home/apt,Entire serviced apartment,93,52.36884,4.90454
+private room,Room in boutique hotel,86,52.37488,4.89281
+private room,Private room in townhouse,77,52.36912,4.88737
+private room,Private room in houseboat,72,52.37128,4.9037
+private room,Private room in guest suite,69,52.36853,4.89156
+entire home/apt,Entire guest suite,41,52.36435,4.88959
+private room,Private room in boat,40,52.37564,4.89916
+entire home/apt,Entire guesthouse,40,52.37556,4.89846
+private room,Private room in guesthouse,36,52.36482,4.89411
+private room,Private room in loft,30,52.37174,4.89476
+entire home/apt,Entire place,16,52.37174,4.90034
+entire home/apt,Tiny home,16,52.37944,4.8801
+entire home/apt,Entire villa,16,52.35467,4.9068
+shared room,Shared room in hotel,15,52.36194,4.91783

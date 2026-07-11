@@ -1,0 +1,8 @@
+score_column,listing_count,mean,median,share_at_4_9_or_above,share_at_5
+review_scores_rating,9346,4.85,4.92,0.567,0.3865
+review_scores_accuracy,9346,4.86,4.92,0.5778,0.3765
+review_scores_cleanliness,9345,4.79,4.88,0.4637,0.3089
+review_scores_checkin,9346,4.9,4.97,0.7027,0.4515
+review_scores_communication,9346,4.91,5.0,0.7595,0.5242
+review_scores_location,9346,4.83,4.89,0.4907,0.3239
+review_scores_value,9346,4.66,4.71,0.2036,0.1679
