@@ -1,0 +1,21 @@
+neighbourhood,listing_count,median_price,category
+De Baarsjes - Oud-West,1818,330.49,top_supply
+De Pijp - Rivierenbuurt,1195,335.555,top_supply
+Centrum-West,1191,297.52,top_supply
+Centrum-Oost,921,287.78999999999996,top_supply
+Westerpark,717,287.5,top_supply
+Zuid,694,334.0,top_supply
+Oud-Oost,664,277.0,top_supply
+Bos en Lommer,546,265.0,top_supply
+Oud-Noord,474,265.275,top_supply
+Oostelijk Havengebied - Indische Buurt,411,262.4,top_supply
+Bijlmer-Oost,39,120.305,bottom_supply
+Gaasperdam - Driemond,54,162.2,bottom_supply
+Osdorp,59,152.75,bottom_supply
+Bijlmer-Centrum,62,160.0,bottom_supply
+De Aker - Nieuw Sloten,71,209.175,bottom_supply
+Buitenveldert - Zuidas,119,239.8,bottom_supply
+Geuzenveld - Slotermeer,141,232.75,bottom_supply
+Noord-Oost,179,266.025,bottom_supply
+IJburg - Zeeburgereiland,187,286.875,bottom_supply
+Slotervaart,219,238.625,bottom_supply

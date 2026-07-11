@@ -1,0 +1,47 @@
+neighbourhood,room_type,listing_count,median_nightly_price,price_p25,price_p75
+Centrum-West,entire home/apt,473,400.0,283.2,574.33
+Centrum-Oost,entire home/apt,399,382.5,271.33500000000004,549.5
+De Pijp - Rivierenbuurt,entire home/apt,576,361.0,279.1925,472.0
+Zuid,entire home/apt,353,360.33,285.0,559.2
+De Baarsjes - Oud-West,entire home/apt,901,357.0,274.98,466.75
+IJburg - Zeeburgereiland,entire home/apt,86,349.08,257.0,461.1675
+Watergraafsmeer,entire home/apt,137,329.5,245.5,432.0
+Noord-Oost,entire home/apt,94,308.75,246.6225,383.855
+Oud-Oost,entire home/apt,300,303.99,245.04,393.9175
+Westerpark,entire home/apt,350,303.83,242.3125,399.5
+Buitenveldert - Zuidas,entire home/apt,56,298.58500000000004,211.64249999999998,447.665
+Noord-West,entire home/apt,169,289.5,226.0,348.5
+Bijlmer-Oost,entire home/apt,13,285.5,184.57,361.0
+Oud-Noord,entire home/apt,223,285.33,231.79000000000002,373.79499999999996
+Bos en Lommer,entire home/apt,228,281.145,225.75,364.27
+Slotervaart,entire home/apt,89,280.0,214.67,361.67
+Oostelijk Havengebied - Indische Buurt,entire home/apt,184,277.895,220.73000000000002,357.0825
+Geuzenveld - Slotermeer,entire home/apt,61,268.0,194.5,328.5
+De Aker - Nieuw Sloten,entire home/apt,24,261.93,211.5725,372.92
+Bijlmer-Centrum,hotel room,10,227.2,222.4,272.0
+Gaasperdam - Driemond,entire home/apt,19,217.83,167.85,326.0
+Centrum-West,private room,374,210.0,171.2175,281.225
+Osdorp,entire home/apt,21,205.5,157.0,263.67
+Centrum-Oost,private room,255,190.33,143.375,259.0
+Bijlmer-Centrum,entire home/apt,15,188.33,154.17,256.0
+Westerpark,private room,50,185.0,154.0,225.75
+Oostelijk Havengebied - Indische Buurt,private room,47,184.0,139.5,319.31
+De Aker - Nieuw Sloten,private room,22,180.5,113.975,200.25
+Oud-Noord,private room,53,173.0,138.0,203.93
+Zuid,private room,80,171.85500000000002,134.495,219.6075
+De Pijp - Rivierenbuurt,private room,120,163.75,136.5,225.81
+Oud-Oost,private room,73,156.5,125.0,209.0
+De Baarsjes - Oud-West,private room,162,154.0,112.44,210.565
+IJburg - Zeeburgereiland,private room,30,149.93,113.75,179.22
+Watergraafsmeer,private room,41,149.0,112.98,183.0
+Buitenveldert - Zuidas,private room,31,148.5,113.0,221.235
+Geuzenveld - Slotermeer,private room,33,136.0,120.0,186.67
+Noord-Oost,private room,30,135.625,99.33500000000001,168.19
+Noord-West,private room,36,128.085,102.125,150.875
+Bos en Lommer,private room,29,126.0,108.5,157.33
+Bijlmer-Centrum,private room,22,118.485,80.41,148.5525
+Slotervaart,private room,29,117.0,97.0,156.5
+Osdorp,private room,19,108.33,86.09,135.75
+Gaasperdam - Driemond,private room,12,105.5,82.1075,133.125
+Bijlmer-Oost,private room,11,104.0,96.60499999999999,112.98
+Oud-Oost,shared room,10,44.5,37.25,51.75
