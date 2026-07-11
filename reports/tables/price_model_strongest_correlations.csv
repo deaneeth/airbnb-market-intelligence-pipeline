@@ -1,0 +1,6 @@
+feature,pearson_correlation_with_log_price,absolute_correlation,interpretation_note
+bedrooms,0.481704,0.481704,Correlation is an association and does not establish a causal relationship.
+minimum_nights,-0.213149,0.213149,Correlation is an association and does not establish a causal relationship.
+review_scores_rating,0.196729,0.196729,Correlation is an association and does not establish a causal relationship.
+distance_to_centre_km,-0.183088,0.183088,Correlation is an association and does not establish a causal relationship.
+availability_rate,0.014584,0.014584,Correlation is an association and does not establish a causal relationship.

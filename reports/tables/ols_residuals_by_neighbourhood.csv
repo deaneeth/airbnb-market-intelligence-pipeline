@@ -1,0 +1,23 @@
+neighbourhood_cleansed,row_count,mean_residual,median_residual,residual_std
+De Baarsjes - Oud-West,888,0.0,0.000376,0.324489
+Centrum-West,580,0.0,-0.012902,0.445223
+De Pijp - Rivierenbuurt,572,0.0,-0.021575,0.353307
+Centrum-Oost,480,0.0,-0.026106,0.371207
+Zuid,333,0.0,-0.004609,0.348979
+Westerpark,326,0.0,-0.005483,0.332655
+Oud-Oost,299,0.0,-0.011246,0.297462
+Oud-Noord,224,0.0,0.01178,0.307922
+Bos en Lommer,214,0.0,0.008024,0.293605
+Oostelijk Havengebied - Indische Buurt,193,0.0,-0.028347,0.319066
+Noord-West,160,0.0,0.007845,0.292976
+Watergraafsmeer,128,0.0,0.004234,0.343008
+IJburg - Zeeburgereiland,86,0.0,-0.015084,0.43653
+Slotervaart,83,0.0,0.025442,0.272985
+Noord-Oost,80,0.0,0.047769,0.361151
+Geuzenveld - Slotermeer,58,0.0,-0.003028,0.429147
+Buitenveldert - Zuidas,57,0.0,-0.113063,0.410241
+De Aker - Nieuw Sloten,29,0.0,-0.003967,0.370879
+Osdorp,28,0.0,0.028456,0.275216
+Gaasperdam - Driemond,23,0.0,0.02011,0.344584
+Bijlmer-Centrum,19,0.0,-0.081692,0.414315
+Bijlmer-Oost,18,0.0,-0.056594,0.35392
