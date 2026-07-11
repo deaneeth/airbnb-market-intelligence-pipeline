@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Final
 
+import matplotlib
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 from scipy import stats
+from statsmodels.nonparametric.smoothers_lowess import lowess
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from airbnb_intelligence.config import load_config
 from airbnb_intelligence.enrichment import MIN_NEIGHBOURHOOD_LISTINGS
@@ -18,8 +25,8 @@ from airbnb_intelligence.utils import (
     COL_NEIGHBOURHOOD,
     COL_PRICE,
     COL_PRICE_LOG,
-    COL_REVIEW_FREQUENCY,
     COL_ROOM_TYPE,
+    FIGURES_DIR,
     TABLES_DIR,
     city_processed_dir,
     city_staged_dir,
@@ -35,6 +42,16 @@ BOOTSTRAP_REPS: Final[int] = 500
 RANDOM_SEED: Final[int] = 42
 REVIEW_SCORE_COL: Final[str] = "review_scores_rating"
 SUPERHOST_COL: Final[str] = "host_is_superhost"
+PROPERTY_TYPE_COL: Final[str] = "property_type"
+BEDROOMS_COL: Final[str] = "bedrooms"
+MINIMUM_NIGHTS_COL: Final[str] = "minimum_nights"
+NEIGHBOURHOOD_GROUP_COL: Final[str] = "neighbourhood_group"
+PROPERTY_TYPE_GROUP_COL: Final[str] = "property_type_group"
+FITTED_COL: Final[str] = "fitted_log_price"
+RESIDUAL_COL: Final[str] = "residual_log_price"
+PRICE_DECILE_COL: Final[str] = "price_decile"
+MODEL_MIN_GROUP_SIZE: Final[int] = MIN_NEIGHBOURHOOD_LISTINGS
+LOWESS_FRACTION: Final[float] = 0.35
 REQUIRED_RESULT_COLUMNS: Final[list[str]] = [
     "hypothesis_id",
     "business_question",
@@ -75,7 +92,7 @@ def run_statistics(
 
 
 def build_statistical_outputs(city_key: str, snapshot_date: str) -> StatisticsResult:
-    ensure_dirs(TABLES_DIR)
+    ensure_dirs(TABLES_DIR, FIGURES_DIR)
     listings = load_statistics_listings(city_key, snapshot_date)
     results = run_hypothesis_tests(listings)
     results_path = TABLES_DIR / "hypothesis_tests.csv"
@@ -84,14 +101,44 @@ def build_statistical_outputs(city_key: str, snapshot_date: str) -> StatisticsRe
     room_ci_path = TABLES_DIR / "price_ci_by_room_type.csv"
     neighbourhood_ci_path = TABLES_DIR / "price_ci_by_neighbourhood.csv"
     ols_path = TABLES_DIR / "ols_price_model.csv"
+    vif_path = TABLES_DIR / "ols_price_model_vif.csv"
+    limitations_path = TABLES_DIR / "ols_price_model_limitations.csv"
+    correlation_path = TABLES_DIR / "price_model_correlations.csv"
+    strongest_path = TABLES_DIR / "price_model_strongest_correlations.csv"
+    room_residual_path = TABLES_DIR / "ols_residuals_by_room_type.csv"
+    neighbourhood_residual_path = TABLES_DIR / "ols_residuals_by_neighbourhood.csv"
+    decile_residual_path = TABLES_DIR / "ols_residuals_by_price_decile.csv"
 
     price_ci_table(listings, COL_ROOM_TYPE).to_csv(room_ci_path, index=False)
     price_ci_table(listings, COL_NEIGHBOURHOOD).to_csv(neighbourhood_ci_path, index=False)
-    fit_price_model(listings).to_csv(ols_path, index=False)
+    write_price_model_diagnostics(
+        listings,
+        snapshot_date,
+        ols_path,
+        vif_path,
+        limitations_path,
+        correlation_path,
+        strongest_path,
+        room_residual_path,
+        neighbourhood_residual_path,
+        decile_residual_path,
+    )
 
     return StatisticsResult(
         city_key=city_key,
-        table_paths=[results_path, room_ci_path, neighbourhood_ci_path, ols_path],
+        table_paths=[
+            results_path,
+            room_ci_path,
+            neighbourhood_ci_path,
+            ols_path,
+            vif_path,
+            limitations_path,
+            correlation_path,
+            strongest_path,
+            room_residual_path,
+            neighbourhood_residual_path,
+            decile_residual_path,
+        ],
     )
 
 
@@ -100,7 +147,7 @@ def load_statistics_listings(city_key: str, snapshot_date: str) -> pd.DataFrame:
     staged = city_staged_dir(city_key, snapshot_date) / "listings_detailed.csv"
     supplemental = pd.read_csv(
         staged,
-        usecols=["id", SUPERHOST_COL, REVIEW_SCORE_COL],
+        usecols=["id", SUPERHOST_COL, REVIEW_SCORE_COL, PROPERTY_TYPE_COL, BEDROOMS_COL],
     ).rename(columns={"id": COL_LISTING_ID})
     supplemental[SUPERHOST_COL] = supplemental[SUPERHOST_COL].map(_normalise_tf)
     return master.merge(supplemental, on=COL_LISTING_ID, how="left")
@@ -159,33 +206,13 @@ def eta_squared(kw_statistic: float, n_total: int, group_count: int) -> float:
 
 
 def fit_price_model(listings: pd.DataFrame) -> pd.DataFrame:
-    required = [
-        COL_PRICE_LOG,
-        COL_ROOM_TYPE,
-        COL_HOST_SEGMENT,
-        COL_NEIGHBOURHOOD,
-        "distance_to_centre_km",
-        COL_AVAILABILITY_RATE,
-        COL_REVIEW_FREQUENCY,
-    ]
-    model_df = listings[required].dropna().copy()
-    top_neighbourhoods = model_df[COL_NEIGHBOURHOOD].value_counts().head(10).index
-    model_df["neighbourhood_group"] = np.where(
-        model_df[COL_NEIGHBOURHOOD].isin(top_neighbourhoods),
-        model_df[COL_NEIGHBOURHOOD],
-        "other",
-    )
-    formula = (
-        f"{COL_PRICE_LOG} ~ C({COL_ROOM_TYPE}) + C({COL_HOST_SEGMENT}) + "
-        "C(neighbourhood_group) + distance_to_centre_km + "
-        f"{COL_AVAILABILITY_RATE} + {COL_REVIEW_FREQUENCY}"
-    )
-    model = smf.ols(formula=formula, data=model_df).fit(cov_type="HC3")
+    model_df = prepare_price_model_frame(listings)
+    model = _fit_price_model(model_df)
     conf = model.conf_int(alpha=ALPHA)
     return pd.DataFrame(
         {
             "term": model.params.index,
-            "estimate": model.params.values,
+            "marginal_association": model.params.values,
             "std_error_hc3": model.bse.values,
             "test_statistic": model.tvalues.values,
             "p_value": model.pvalues.values,
@@ -194,10 +221,290 @@ def fit_price_model(listings: pd.DataFrame) -> pd.DataFrame:
             "n_obs": int(model.nobs),
             "r_squared": model.rsquared,
             "adjusted_r_squared": model.rsquared_adj,
-            "model_formula": formula,
-            "interpretation_note": "Associational model on log listing price; not causal.",
+            "model_formula": _price_model_formula(),
+            "interpretation_note": "Marginal associations in an observational cross-sectional model; not causal.",
         }
     ).round(6)
+
+
+def prepare_price_model_frame(listings: pd.DataFrame) -> pd.DataFrame:
+    required = _price_model_required_columns()
+    missing = [column for column in required if column not in listings.columns]
+    if missing:
+        raise ValueError(f"Price model input is missing columns: {missing}")
+    model_df = listings[required].copy()
+    for column in [
+        COL_PRICE_LOG,
+        COL_PRICE,
+        BEDROOMS_COL,
+        MINIMUM_NIGHTS_COL,
+        REVIEW_SCORE_COL,
+        COL_AVAILABILITY_RATE,
+        "distance_to_centre_km",
+    ]:
+        model_df[column] = pd.to_numeric(model_df[column], errors="coerce")
+    model_df = model_df.dropna()
+    model_df = model_df[(model_df[COL_PRICE] > 0) & (model_df[MINIMUM_NIGHTS_COL] >= 0)]
+    model_df[PROPERTY_TYPE_GROUP_COL] = _group_sparse_categories(
+        model_df[PROPERTY_TYPE_COL], "other property types"
+    )
+    model_df[NEIGHBOURHOOD_GROUP_COL] = _group_sparse_categories(
+        model_df[COL_NEIGHBOURHOOD], "other neighbourhoods"
+    )
+    return model_df
+
+
+def correlation_matrix(listings: pd.DataFrame) -> pd.DataFrame:
+    model_df = prepare_price_model_frame(listings)
+    numeric_cols = [
+        COL_PRICE_LOG,
+        COL_PRICE,
+        BEDROOMS_COL,
+        MINIMUM_NIGHTS_COL,
+        REVIEW_SCORE_COL,
+        COL_AVAILABILITY_RATE,
+        "distance_to_centre_km",
+    ]
+    return model_df[numeric_cols].corr(method="pearson").round(6)
+
+
+def strongest_price_correlations(listings: pd.DataFrame) -> pd.DataFrame:
+    corr = correlation_matrix(listings)
+    rows = []
+    for feature, value in corr[COL_PRICE_LOG].drop(labels=[COL_PRICE_LOG, COL_PRICE]).items():
+        rows.append(
+            {
+                "feature": feature,
+                "pearson_correlation_with_log_price": value,
+                "absolute_correlation": abs(value),
+                "interpretation_note": "Correlation is an association and does not establish a causal relationship.",
+            }
+        )
+    return pd.DataFrame(rows).sort_values("absolute_correlation", ascending=False)
+
+
+def model_vif_table(listings: pd.DataFrame) -> pd.DataFrame:
+    model_df = prepare_price_model_frame(listings)
+    model = _fit_price_model(model_df)
+    exog = model.model.exog
+    rows = []
+    for index, name in enumerate(model.model.exog_names):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=RuntimeWarning)
+            value = variance_inflation_factor(exog, index)
+        rows.append(
+            {
+                "term": name,
+                "vif": round(float(value), 4),
+                "warning": _vif_warning(name, value),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def residual_summary(
+    listings: pd.DataFrame,
+    group_col: str,
+) -> pd.DataFrame:
+    residuals = price_model_residuals(listings)
+    grouped = residuals.groupby(group_col, observed=True)[RESIDUAL_COL]
+    return (
+        grouped.agg(
+            row_count="count",
+            mean_residual="mean",
+            median_residual="median",
+            residual_std="std",
+        )
+        .reset_index()
+        .round(6)
+        .sort_values("row_count", ascending=False)
+    )
+
+
+def price_model_residuals(listings: pd.DataFrame) -> pd.DataFrame:
+    model_df = prepare_price_model_frame(listings)
+    model = _fit_price_model(model_df)
+    residuals = model_df[
+        [
+            COL_LISTING_ID,
+            COL_PRICE,
+            COL_PRICE_LOG,
+            COL_ROOM_TYPE,
+            COL_NEIGHBOURHOOD,
+        ]
+    ].copy()
+    residuals[FITTED_COL] = model.fittedvalues
+    residuals[RESIDUAL_COL] = model.resid
+    residuals[PRICE_DECILE_COL] = pd.qcut(
+        residuals[COL_PRICE],
+        q=10,
+        labels=[f"D{i}" for i in range(1, 11)],
+        duplicates="drop",
+    )
+    return residuals
+
+
+def model_limitations_table(listings: pd.DataFrame) -> pd.DataFrame:
+    model_df = prepare_price_model_frame(listings)
+    return pd.DataFrame(
+        [
+            {
+                "topic": "Complete-case filtering",
+                "detail": f"Model uses {len(model_df)} rows from {len(listings)} listings after required fields are non-null.",
+                "consequence": "Rows with missing bedrooms, review score, superhost flag, price, or model features are excluded.",
+            },
+            {
+                "topic": "Observational design",
+                "detail": "The model is cross-sectional for one Amsterdam snapshot.",
+                "consequence": "Coefficients are marginal associations, not causal effects.",
+            },
+            {
+                "topic": "Availability field",
+                "detail": "availability_rate is host-set availability.",
+                "consequence": "It is not confirmed booked nights and may be jointly determined with listing strategy.",
+            },
+            {
+                "topic": "Neighbourhood categories",
+                "detail": f"Neighbourhood fixed effects are kept when they have at least {MODEL_MIN_GROUP_SIZE} model rows.",
+                "consequence": "Sparse neighbourhoods are grouped to avoid unstable category estimates.",
+            },
+            {
+                "topic": "Omitted attributes",
+                "detail": "Amenities, exact property size, event demand, and regulation context are not in the model.",
+                "consequence": "Estimated associations can reflect unobserved listing and location differences.",
+            },
+        ]
+    )
+
+
+def write_price_model_diagnostics(
+    listings: pd.DataFrame,
+    snapshot_date: str,
+    ols_path: Path,
+    vif_path: Path,
+    limitations_path: Path,
+    correlation_path: Path,
+    strongest_path: Path,
+    room_residual_path: Path,
+    neighbourhood_residual_path: Path,
+    decile_residual_path: Path,
+) -> None:
+    fit_price_model(listings).to_csv(ols_path, index=False)
+    model_vif_table(listings).to_csv(vif_path, index=False)
+    model_limitations_table(listings).to_csv(limitations_path, index=False)
+    correlation_matrix(listings).to_csv(correlation_path)
+    strongest = strongest_price_correlations(listings)
+    strongest.to_csv(strongest_path, index=False)
+    residual_summary(listings, COL_ROOM_TYPE).to_csv(room_residual_path, index=False)
+    residual_summary(listings, COL_NEIGHBOURHOOD).to_csv(neighbourhood_residual_path, index=False)
+    residual_summary(listings, PRICE_DECILE_COL).to_csv(decile_residual_path, index=False)
+    residuals = price_model_residuals(listings)
+    _plot_residuals_vs_fitted(residuals, snapshot_date)
+    plotted = 0
+    for feature in strongest["feature"].head(3):
+        if _has_enough_unique_values(listings, feature):
+            _plot_lowess_relationship(listings, feature, snapshot_date)
+            plotted += 1
+    for feature in strongest["feature"].iloc[3:]:
+        if plotted >= 3:
+            break
+        if _has_enough_unique_values(listings, feature):
+            _plot_lowess_relationship(listings, feature, snapshot_date)
+            plotted += 1
+
+
+def _fit_price_model(model_df: pd.DataFrame) -> object:
+    formula = (
+        f"{COL_PRICE_LOG} ~ C({COL_ROOM_TYPE}) + C({PROPERTY_TYPE_GROUP_COL}) + "
+        f"C({SUPERHOST_COL}) + C({NEIGHBOURHOOD_GROUP_COL}) + {BEDROOMS_COL} + "
+        f"{MINIMUM_NIGHTS_COL} + {REVIEW_SCORE_COL} + {COL_AVAILABILITY_RATE} + "
+        "distance_to_centre_km"
+    )
+    return smf.ols(formula=formula, data=model_df).fit(cov_type="HC3")
+
+
+def _price_model_formula() -> str:
+    return (
+        f"{COL_PRICE_LOG} ~ C({COL_ROOM_TYPE}) + C({PROPERTY_TYPE_GROUP_COL}) + "
+        f"C({SUPERHOST_COL}) + C({NEIGHBOURHOOD_GROUP_COL}) + {BEDROOMS_COL} + "
+        f"{MINIMUM_NIGHTS_COL} + {REVIEW_SCORE_COL} + {COL_AVAILABILITY_RATE} + "
+        "distance_to_centre_km"
+    )
+
+
+def _price_model_required_columns() -> list[str]:
+    return [
+        COL_LISTING_ID,
+        COL_PRICE,
+        COL_PRICE_LOG,
+        COL_ROOM_TYPE,
+        PROPERTY_TYPE_COL,
+        BEDROOMS_COL,
+        MINIMUM_NIGHTS_COL,
+        REVIEW_SCORE_COL,
+        SUPERHOST_COL,
+        COL_AVAILABILITY_RATE,
+        "distance_to_centre_km",
+        COL_NEIGHBOURHOOD,
+    ]
+
+
+def _group_sparse_categories(values: pd.Series, other_label: str) -> pd.Series:
+    counts = values.value_counts()
+    keep = counts[counts >= MODEL_MIN_GROUP_SIZE].index
+    return values.where(values.isin(keep), other_label)
+
+
+def _vif_warning(name: str, value: float) -> str:
+    if name == "Intercept":
+        return "Intercept is not assessed as a predictor."
+    if value > 10:
+        return "VIF > 10"
+    return ""
+
+
+def _has_enough_unique_values(listings: pd.DataFrame, feature: str) -> bool:
+    values = pd.to_numeric(listings[feature], errors="coerce").dropna()
+    return values.nunique() >= 20
+
+
+def _plot_residuals_vs_fitted(residuals: pd.DataFrame, snapshot_date: str) -> None:
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.scatter(residuals[FITTED_COL], residuals[RESIDUAL_COL], s=8, alpha=0.25)
+    ax.axhline(0, color="black", linewidth=1)
+    ax.set_title(f"Residuals versus fitted log price - Amsterdam {snapshot_date}")
+    ax.set_xlabel("Fitted log nightly price")
+    ax.set_ylabel("Residual log nightly price")
+    fig.tight_layout()
+    fig.savefig(FIGURES_DIR / "price_model_residuals_vs_fitted.png", dpi=160)
+    plt.close(fig)
+
+
+def _plot_lowess_relationship(listings: pd.DataFrame, feature: str, snapshot_date: str) -> None:
+    model_df = prepare_price_model_frame(listings)
+    plot_df = model_df[[feature, COL_PRICE_LOG]].dropna().sort_values(feature)
+    if len(plot_df) > 5000:
+        plot_df = plot_df.sample(5000, random_state=RANDOM_SEED).sort_values(feature)
+    smooth_input = plot_df.groupby(feature, as_index=False)[COL_PRICE_LOG].mean()
+    if len(smooth_input) < 5:
+        return
+    smoothed = lowess(
+        smooth_input[COL_PRICE_LOG],
+        smooth_input[feature],
+        frac=LOWESS_FRACTION,
+        return_sorted=True,
+    )
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.scatter(plot_df[feature], plot_df[COL_PRICE_LOG], s=8, alpha=0.18)
+    ax.plot(smoothed[:, 0], smoothed[:, 1], color="#C0392B", linewidth=2, label="LOWESS smoother")
+    ax.set_title(f"{feature} and log nightly price - Amsterdam {snapshot_date}")
+    ax.set_xlabel(feature)
+    ax.set_ylabel("Log nightly price")
+    ax.legend()
+    fig.tight_layout()
+    safe_feature = feature.replace("_", "-")
+    fig.savefig(FIGURES_DIR / f"price_model_lowess_{safe_feature}.png", dpi=160)
+    plt.close(fig)
 
 
 def price_ci_table(listings: pd.DataFrame, group_col: str) -> pd.DataFrame:
