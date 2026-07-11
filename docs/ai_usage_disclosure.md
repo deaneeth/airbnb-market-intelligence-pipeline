@@ -269,3 +269,34 @@ Each session entry includes:
   TYPE_CHECKING block after ruff TC003 error. Removed unused COL_HOST_SEGMENT import from tests.
 - **Rejected suggestions**: no `geopy` dependency added, no bedrooms field added without schema
   change, no winsorisation of revenue proxy, no null-filling of host_tenure_years.
+
+### 2026-07-11 - Statistical analysis outputs
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/statistics.py`: hypothesis test execution, p-value correction,
+    effect-size helpers, confidence interval tables, and OLS coefficient export
+  - `src/airbnb_intelligence/cli.py`: wired statistical outputs into the existing `analyse`
+    command
+  - `tests/test_statistics.py`: fixture-based tests for result schema, p-value adjustment,
+    effect-size helpers, and known-answer statistics
+  - `reports/tables/hypothesis_tests.csv`, `price_ci_by_room_type.csv`,
+    `price_ci_by_neighbourhood.csv`, and `ols_price_model.csv`: generated statistical artifacts
+  - `docs/assumptions.md`, `docs/decision_log.md`, and `docs/lineage.md`: method and lineage notes
+- **Nature**: generated, reviewed, debugged, and validated
+- **Author direction and decisions**: The developer required the analysis to stay simple,
+  source-backed, and reviewable; insisted on repeated verification; rejected unsupported
+  calendar-price substitution; and required conclusions to be business-readable without causal
+  overclaiming. The developer also directed that this disclosure record human scope control,
+  practical acceptance decisions, and rejected suggestions rather than presenting the work as
+  passively accepted AI output.
+- **Validation**: focused statistics tests and ruff checks passed; the real `analyse` command
+  generated the statistical tables from Amsterdam processed and staged files; outputs were
+  inspected for effect sizes, confidence intervals, adjusted p-values, and the unavailable
+  calendar-price row.
+- **Modifications**: Corrected a test fixture where availability and price moved in the wrong
+  direction for the intended known-answer assertion. Restored unrelated regenerated EDA artifacts
+  that only changed line endings.
+- **Rejected suggestions**: no listing-price substitution for missing calendar prices, no causal
+  language, no placeholder predictors for fully null fields, and no notebook-only implementation
+  were added.
