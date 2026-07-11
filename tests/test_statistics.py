@@ -10,11 +10,16 @@ from airbnb_intelligence.statistics import (
     REQUIRED_RESULT_COLUMNS,
     apply_bh_correction,
     cohens_d,
+    correlation_matrix,
     eta_squared,
     fit_price_model,
+    model_limitations_table,
+    model_vif_table,
     price_ci_table,
     rank_biserial_r,
+    residual_summary,
     run_hypothesis_tests,
+    strongest_price_correlations,
 )
 
 
@@ -62,24 +67,44 @@ def test_fit_price_model_returns_coefficient_table() -> None:
     assert "Intercept" in set(model["term"])
     assert model["n_obs"].iloc[0] == len(_sample_listings())
     assert math.isfinite(model["r_squared"].iloc[0])
+    assert model["interpretation_note"].str.contains("not causal").all()
+
+
+def test_price_model_diagnostics_tables_are_populated() -> None:
+    listings = _sample_listings()
+
+    assert "bedrooms" in correlation_matrix(listings).columns
+    assert strongest_price_correlations(listings)["absolute_correlation"].is_monotonic_decreasing
+    assert model_vif_table(listings)["vif"].notna().all()
+    assert model_limitations_table(listings)["topic"].notna().all()
+    assert residual_summary(listings, "room_type")["row_count"].sum() == len(listings)
 
 
 def _sample_listings() -> pd.DataFrame:
     rows = []
     neighbourhoods = ["Centre", "West", "East"]
-    for i in range(60):
-        is_entire = i < 30
-        price = 180 + i if is_entire else 90 + i
+    property_types = [
+        "Entire rental unit",
+        "Entire condo",
+        "Private room in rental unit",
+        "House",
+    ]
+    for i in range(120):
+        is_entire = i % 2 == 0
+        price = 90 + (80 if is_entire else 0) + ((i % 17) * 4) + ((i % 5) * 9)
         rows.append(
             {
                 "listing_id": i + 1,
                 "price": float(price),
                 "price_log": float(np.log(price)),
                 "room_type": "entire home/apt" if is_entire else "private room",
+                "property_type": property_types[(i // 2) % len(property_types)],
+                "bedrooms": 1.0 + ((i // 3) % 4),
                 "host_is_superhost": "true" if i % 3 == 0 else "false",
                 "host_segment": "professional" if i % 4 == 0 else "casual",
                 "neighbourhood_cleansed": neighbourhoods[i % len(neighbourhoods)],
-                "availability_rate": 2 - (price / 100),
+                "minimum_nights": 1 + (i % 7),
+                "availability_rate": 1.2 - (price / 300) + ((i % 7) / 100),
                 "review_frequency": 0.2 + (i / 30),
                 "review_scores_rating": 4.2 + (i % 10) / 20,
                 "distance_to_centre_km": 0.5 + (i % 12) / 3,
