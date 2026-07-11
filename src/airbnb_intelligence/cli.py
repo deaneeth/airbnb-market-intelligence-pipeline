@@ -9,6 +9,7 @@ from airbnb_intelligence.database import run_database
 from airbnb_intelligence.enrichment import run_enrichment
 from airbnb_intelligence.ingestion import run_ingestion
 from airbnb_intelligence.profiling import profile_city
+from airbnb_intelligence.reporting import run_eda
 from airbnb_intelligence.validation import validate_city
 
 
@@ -31,7 +32,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("transform", help="Clean staged files and write Parquet outputs")
     sub.add_parser("enrich", help="Add derived fields to the listings master table")
     sub.add_parser("load", help="Build DuckDB star schema from processed Parquet")
-    sub.add_parser("analyse", help="Run EDA, statistics, and ML experiment")
+    sub.add_parser("analyse", help="Generate exploratory figures and summary tables")
     sub.add_parser("run", help="Execute all steps in dependency order")
     return parser
 
@@ -75,6 +76,11 @@ def main() -> None:
         if args.city is None:
             parser.error("--city is required for load")
         run_database(args.config, city_key=args.city)
+        return
+    if args.command == "analyse":
+        if args.city is None:
+            parser.error("--city is required for analyse")
+        run_eda(args.config, city_key=args.city)
         return
 
     raise NotImplementedError(f"'{args.command}' is not yet implemented.")
