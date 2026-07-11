@@ -20,6 +20,7 @@ dependencies = [
     "matplotlib>=3.8",
     "seaborn>=0.13",
     "rapidfuzz>=3.6",
+    "streamlit>=1.36",
 ]
 
 [project.optional-dependencies]
