@@ -182,6 +182,37 @@ Each session entry includes:
   prices, no orchestration framework, no full calendar pandas load, and no broad enrichment logic
   were added.
 
+### 2026-07-11 - DuckDB star schema and business queries
+
+- **Tool**: Claude Sonnet 4.6 (Antigravity IDE)
+- **Assisted work**:
+  - `sql/schema.sql`: rewritten to match actual enriched master columns
+  - `sql/business_queries.sql`: seven named business queries adapted to available data
+  - `src/airbnb_intelligence/database.py`: full implementation including dimension and fact
+    table loading, date spine generation, row count verification, query execution, CSV export
+  - `src/airbnb_intelligence/cli.py`: wired the `load` subcommand
+  - `tests/test_pipeline_smoke.py`: 16 smoke tests covering schema idempotency, fixture loads,
+    no duplicate fact rows, verify_counts behaviour, query execution, date spine, and query parsing
+  - `docs/assumptions.md`, `docs/decision_log.md`, `docs/lineage.md`: database documentation
+- **Nature**: generated, reviewed, debugged, and verified on real data
+- **Author direction and decisions**: The developer specified that the schema must match the actual
+  enriched master rather than a speculative design. The developer caught that the original schema
+  contained fields (`bedrooms`, `host_is_superhost`, review sub-scores) that do not exist in the
+  cleaned master and instructed AI to rewrite rather than add NULL placeholders. The decision to
+  replace the weekday/weekend query (Q6) with distance-to-centre analysis — because the calendar
+  is month-grain, not day-grain — was the developer's judgment call. The developer also reviewed
+  and confirmed the business query set before any data was exported.
+- **Validation**: `ruff check` clean (twice). `pytest tests/` 87 tests passed (twice).
+  Real `load` command run twice on Amsterdam: identical counts both runs (idempotency confirmed).
+  All 7 business queries executed and exported to `reports/tables/`.
+- **Modifications**: Fixed `CREATE OR REPLACE TABLE` DependencyException by adding explicit
+  ordered `DROP TABLE IF EXISTS` in reverse dependency order. Fixed two smoke tests after the
+  schema idempotency fix: idempotency test was reading schema at module load before the fix was
+  applied; verify_counts test needed dim_listing populated before it could reach fact_listing_snapshot.
+- **Rejected suggestions**: no NULL placeholder columns for missing data, no speculative fields
+  added without a concrete source column, no pandas full-calendar load.
+
+
 ### 2026-07-11 - Listing enrichment and derived fields
 
 - **Tool**: Claude Sonnet 4.6 (Antigravity IDE)
