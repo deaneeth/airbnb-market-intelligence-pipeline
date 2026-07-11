@@ -5,6 +5,7 @@ import logging
 import sys
 
 from airbnb_intelligence.cleaning import run_cleaning
+from airbnb_intelligence.enrichment import run_enrichment
 from airbnb_intelligence.ingestion import run_ingestion
 from airbnb_intelligence.profiling import profile_city
 from airbnb_intelligence.validation import validate_city
@@ -27,6 +28,7 @@ def _build_parser() -> argparse.ArgumentParser:
     sub.add_parser("profile", help="Profile staged files and generate quality report")
     sub.add_parser("validate", help="Run domain validation rules")
     sub.add_parser("transform", help="Clean staged files and write Parquet outputs")
+    sub.add_parser("enrich", help="Add derived fields to the listings master table")
     sub.add_parser("load", help="Build DuckDB star schema from processed Parquet")
     sub.add_parser("analyse", help="Run EDA, statistics, and ML experiment")
     sub.add_parser("run", help="Execute all steps in dependency order")
@@ -64,6 +66,9 @@ def main() -> None:
         return
     if args.command == "transform":
         run_cleaning(args.config, city_key=args.city)
+        return
+    if args.command == "enrich":
+        run_enrichment(args.config, city_key=args.city)
         return
 
     raise NotImplementedError(f"'{args.command}' is not yet implemented.")
