@@ -190,3 +190,35 @@ the choice made, the rationale, and the trade-offs accepted.
   revenue estimate from mixed-grain inputs.
 - **Trade-offs accepted**: Revenue proxy work is deferred until a documented method can combine
   price and availability without implying observed earnings.
+
+### [2026-07-11] Haversine distance implementation without external geo library
+
+- **Context**: Distance to city centre must be computed for each listing. Options include a pure
+  Python formula, `geopy`, or `scipy.spatial`.
+- **Options considered**:
+  1. Pure Python Haversine using `math` (standard library only)
+  2. `geopy.distance.geodesic` for higher accuracy
+  3. `scipy.spatial.distance` (no native geodesic)
+- **Decision**: Pure Python Haversine using the `math` standard library.
+- **Rationale**: `geopy` is not a declared dependency. Adding it for one field is not justified
+  when the Haversine formula delivers sufficient accuracy for neighbourhood-scale analysis on
+  anonymized coordinates.
+- **Trade-offs accepted**: Haversine ignores Earth's ellipsoidal shape; error is under 0.5% for
+  the distances involved in Amsterdam. Acceptable given that coordinates are already approximate.
+
+### [2026-07-11] Revenue proxy computed at enrichment step from listing price and calendar
+
+- **Context**: The cleaned calendar file has no price column. Revenue proxy requires combining
+  calendar availability with listing price.
+- **Options considered**:
+  1. Compute revenue proxy in cleaning by joining listing price into calendar before aggregation
+  2. Compute revenue proxy in enrichment by joining calendar aggregates onto the master listing table
+  3. Leave revenue proxy to the statistical analysis step
+- **Decision**: Compute `revenue_proxy` at the enrichment step by joining the calendar aggregate
+  onto the listing master and applying `price * occupancy_proxy * total_days_observed`.
+- **Rationale**: Enrichment is the correct step for cross-file joins. The listing master already
+  has the price field; computing the proxy here keeps the formula in one documented location
+  and avoids pushing join logic into cleaning or analysis.
+- **Trade-offs accepted**: Revenue proxy is only non-null for listings with both a valid calendar
+  and a non-null listing price (6,377 of 10,369 listings). Null values are left as null, not zero.
+

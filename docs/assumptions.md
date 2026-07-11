@@ -222,3 +222,45 @@ Each entry follows this structure:
   can exclude them explicitly with a reported row count.
 - **Alternative considered**: Quarantine long-stay listings. Rejected because long minimum stays
   are unusual-but-plausible source values, not invalid data.
+
+### [2026-07-11] host_since field is fully null in the Amsterdam 2026-06-15 snapshot
+
+- **Component**: enrichment
+- **Assumption**: The `host_since` column in the Amsterdam 2026-06-15 staged listings file
+  contains no populated values. All 10,369 rows have a null `host_since`.
+- **Rationale**: The staged file was inspected before implementing the enrichment. The field
+  is documented in the Inside Airbnb data dictionary but is not populated in this snapshot export.
+- **Consequence**: `host_tenure_years` is null for all listings in the Amsterdam run. It is
+  retained as a column for compatibility if a later snapshot or city provides data.
+- **Alternative considered**: Drop the column from the schema. Rejected because the field may
+  be present in a future snapshot; keeping it null is less disruptive than altering the schema.
+
+### [2026-07-11] Revenue proxy formula
+
+- **Component**: enrichment
+- **Assumption**: `revenue_proxy = listing_price * occupancy_proxy * total_calendar_days_observed`
+  where `total_calendar_days_observed` is the sum of all daily rows in the calendar window for
+  that listing, and `occupancy_proxy` is the mean monthly value across all observed months.
+- **Rationale**: The calendar file does not contain a per-day price. The listing-level quote
+  price is the only available price signal. This is a deliberate approximation, not observed
+  revenue.
+- **Consequence**: Every use of `revenue_proxy` carries the caveat:
+  "Estimated from availability proxy and calendar price; not observed revenue."
+  Listings with no calendar data or no usable price receive null.
+- **Alternative considered**: Use only availability-derived days without price (i.e., a day-count
+  proxy). Rejected because a price-weighted measure is more informative as a relative signal.
+
+### [2026-07-11] Bedrooms field excluded from enrichment
+
+- **Component**: enrichment
+- **Assumption**: `price_per_bedroom` is not computed because the `bedrooms` column is not
+  included in the set of columns selected during the cleaning step.
+- **Rationale**: `bedrooms` was not in the `LISTING_COLUMNS` list used by cleaning. Adding it
+  now would require re-running the cleaning step. The field is analytically optional for the
+  enrichment outputs required.
+- **Consequence**: `price_per_bedroom` is absent from `listings_master.parquet`. If added
+  in a later iteration, a new assumption entry must document the null-handling rule
+  (null when bedrooms is zero or null).
+- **Alternative considered**: Re-run cleaning to include bedrooms. Deferred to avoid invalidating
+  the existing quarantine and cleaning outputs.
+

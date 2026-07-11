@@ -135,7 +135,25 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
 - **Output grain**: one row per (listing_id, calendar month)
 - **Primary key**: (`listing_id`, `month`)
 - **Foreign keys**: `listing_id` references `listings_master.parquet`
-- **Consumed by**: later database loading and availability analysis
+- **Consumed by**: enrichment step (join to listings_master), later database loading and availability analysis
+
+### listings_master.parquet (enriched)
+
+- **Source files**: `listings_master.parquet` (cleaned) + `calendar_agg.parquet`
+- **Key transformations**:
+  - `host_tenure_years`: Haversine of (snapshot_date - host_since) / 365.25; null when host_since is null
+  - `portfolio_size`: count of listings per host_id in the snapshot
+  - `host_segment`: "casual" (1 listing) or "professional" (2+ listings); see PROFESSIONAL_HOST_THRESHOLD
+  - `distance_to_centre_km`: Haversine distance from Dam Square (52.37310, 4.89319); see docs/assumptions.md
+  - `availability_rate`, `occupancy_proxy`: mean across all calendar months per listing (left join from calendar_agg)
+  - `revenue_proxy`: listing_price * occupancy_proxy * total_calendar_days_observed; null when price or calendar is absent
+  - `neighbourhood_listing_count`, `neighbourhood_median_price`: broadcast from neighbourhoods with >= 15 listings
+- **Filters and exclusions**: no rows removed; listings without calendar data receive null availability/occupancy/revenue fields
+- **Output grain**: one row per valid listing in the snapshot
+- **Primary key**: `listing_id`
+- **Foreign keys**: `host_id` (source host identifier), `neighbourhood_cleansed` (neighbourhood key)
+- **Consumed by**: DuckDB star schema load, analysis notebooks, EDA figures, statistical tests, ML experiment
+
 
 ---
 
