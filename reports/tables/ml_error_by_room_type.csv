@@ -1,0 +1,5 @@
+room_type,row_count,mae_original,rmse_original,mean_residual_price
+entire home/apt,979,97.159969,168.298915,23.600471
+hotel room,4,72.695863,94.112775,52.050794
+private room,288,67.000103,149.282545,29.5307
+shared room,5,11.634615,18.518824,-8.8931
