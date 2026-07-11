@@ -5,6 +5,7 @@ import logging
 import sys
 
 from airbnb_intelligence.cleaning import run_cleaning
+from airbnb_intelligence.database import run_database
 from airbnb_intelligence.enrichment import run_enrichment
 from airbnb_intelligence.ingestion import run_ingestion
 from airbnb_intelligence.profiling import profile_city
@@ -69,6 +70,11 @@ def main() -> None:
         return
     if args.command == "enrich":
         run_enrichment(args.config, city_key=args.city)
+        return
+    if args.command == "load":
+        if args.city is None:
+            parser.error("--city is required for load")
+        run_database(args.config, city_key=args.city)
         return
 
     raise NotImplementedError(f"'{args.command}' is not yet implemented.")
