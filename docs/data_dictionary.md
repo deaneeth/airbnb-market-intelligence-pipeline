@@ -229,6 +229,15 @@ Free-text, name, URL, image, permit, and review-comment samples are redacted in 
 | `distance_to_centre_km` | unchanged unless documented in transformation | float64 | 0.00% | 0.03 to 11.48 | Haversine distance from the Dam Square reference coordinate. | Coordinates are anonymized; use for neighbourhood-scale analysis only. |
 | `property_type_group` | unchanged unless documented in transformation | str | 0.00% in model frame | source property types with sparse groups collapsed | Grouped property type used in the OLS formula. | Categories with fewer than 15 model rows are grouped. |
 | `neighbourhood_group` | unchanged unless documented in transformation | str | 0.00% in model frame | source neighbourhoods with sparse groups collapsed | Grouped neighbourhood fixed-effect label used in the OLS formula. | Categories with fewer than 15 model rows are grouped. |
+| `amenity_count` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0+ | Count of parsed source amenities for a listing. | Used only as a predictive feature, not as a causal explanation. |
+| `amenity_wifi` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether parsed amenities include wifi. | Used only as a predictive feature. |
+| `amenity_kitchen` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether parsed amenities include kitchen. | Used only as a predictive feature. |
+| `amenity_washer` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether parsed amenities include washer. | Used only as a predictive feature. |
+| `amenity_air_conditioning` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether parsed amenities include air conditioning. | Used only as a predictive feature. |
+| `amenity_dedicated_workspace` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether parsed amenities include dedicated workspace. | Used only as a predictive feature. |
+| `amenity_free_parking` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether parsed amenities include free parking. | Used only as a predictive feature. |
+| `minimum_nights_capped` | unchanged unless documented in transformation | float64 | imputed in ML pipeline | 1 to 365 | Minimum nights capped at 365 for model stability. | Original `minimum_nights` is preserved in source tables. |
+| `is_long_stay` | unchanged unless documented in transformation | int64 | 0.00% in ML frame | 0 or 1 | Whether source `minimum_nights` is greater than 365. | Used with capped minimum nights to retain long-stay signal. |
 
 ## Coverage Gaps and Source Caveats
 

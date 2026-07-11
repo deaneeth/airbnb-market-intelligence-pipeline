@@ -303,3 +303,28 @@ every run). Schema DDL is in `sql/schema.sql`. Business query SQL is in `sql/bus
   `term` for OLS coefficients and VIF rows; grouping column for residual summary tables
 - **Foreign keys**: source rows reference `listing_id` in `listings_master.parquet`
 - **Consumed by**: final report statistical analysis section and reviewer audit
+
+### Predictive Experiment Outputs (reports/tables/ml_*.csv, reports/ml_model_card.md)
+
+- **Source files**: `listings_master.parquet` and selected columns from staged
+  `listings_detailed.csv`
+- **Key transformations**:
+  - Detailed listing `property_type`, `bedrooms`, `bathrooms`, `accommodates`, `amenities`,
+    and `host_is_superhost` joined by `listing_id`
+  - `price_log` used as target; price-derived, identifier, review-frequency, and
+    calendar-derived availability fields excluded from model features
+  - Amenities parsed into amenity count and six documented amenity flags
+  - Numeric features imputed and scaled inside the training pipeline; categorical features
+    imputed and one-hot encoded inside the training pipeline
+  - Four model families evaluated: median baseline, Ridge regression, Random Forest, and
+    HistGradientBoostingRegressor
+  - Test predictions, error slices, Ridge coefficients, permutation importance, and model card
+    exported for reviewer inspection
+- **Filters and exclusions**: rows require positive parsed price and non-null `price_log`;
+  test-set leakage fields are excluded by `validate_no_leakage`
+- **Output grain**: one model-metric row, one best-model test prediction row, one feature
+  importance row, one coefficient row, or one error-slice row
+- **Primary key**: `model_id` for metric rows; (`model_id`, `listing_id`) for predictions;
+  `feature` for importance and coefficient rows
+- **Foreign keys**: `listing_id` references `listings_master.parquet`
+- **Consumed by**: final report predictive experiment section and modelling limitations section
