@@ -275,24 +275,31 @@ every run). Schema DDL is in `sql/schema.sql`. Business query SQL is in `sql/bus
 - **Foreign keys**: listing-level summaries reference `listing_id` in the source data
 - **Consumed by**: final report captions, business interpretations, and limitations section
 
-### Statistical Analysis Outputs (reports/tables/hypothesis_tests.csv, price_ci_*.csv, ols_price_model.csv)
+### Statistical Analysis Outputs (reports/tables/hypothesis_tests.csv, price_ci_*.csv, ols_price_model*.csv, price_model_*.csv, ols_residuals_*.csv; reports/figures/price_model_*.png)
 
 - **Source files**: `listings_master.parquet` and selected columns from staged
   `listings_detailed.csv`
 - **Key transformations**:
-  - Detailed listing `host_is_superhost` and `review_scores_rating` joined by `listing_id`
+  - Detailed listing `host_is_superhost`, `review_scores_rating`, `property_type`, and
+    `bedrooms` joined by `listing_id`
   - Completed hypothesis rows generated with effect sizes, confidence intervals, assumption
     diagnostics, and Benjamini-Hochberg plus Bonferroni adjusted p-values
   - Weekday/weekend calendar-price question recorded as unavailable because no calendar price
     column exists in the current source files
   - Room-type and neighbourhood median price confidence intervals generated with deterministic
     bootstrap resampling
-  - OLS coefficient table fitted on available listing-level predictors only
+  - Correlation matrix and strongest price-association table generated from complete model rows
+  - OLS coefficient table fitted with HC3 robust standard errors, grouped property type and
+    neighbourhood categories, and VIF diagnostics
+  - Residuals summarised by room type, neighbourhood, and price decile; residual and LOWESS
+    diagnostic figures saved as static PNG files
 - **Filters and exclusions**: test-specific complete-case filters are recorded in
-  `hypothesis_tests.csv`; neighbourhood comparisons require at least 15 listings
+  `hypothesis_tests.csv`; neighbourhood comparisons require at least 15 listings; the OLS model
+  requires non-null price, room type, property type, bedrooms, minimum nights, review score,
+  superhost flag, availability rate, distance to centre, and neighbourhood
 - **Output grain**: one hypothesis row, one confidence-interval row per eligible group, or one
-  OLS coefficient row
+  OLS coefficient/VIF/residual-summary row
 - **Primary key**: `hypothesis_id` for hypothesis tests; `group` for confidence interval tables;
-  `term` for OLS coefficients
+  `term` for OLS coefficients and VIF rows; grouping column for residual summary tables
 - **Foreign keys**: source rows reference `listing_id` in `listings_master.parquet`
 - **Consumed by**: final report statistical analysis section and reviewer audit

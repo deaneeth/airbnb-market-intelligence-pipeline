@@ -302,3 +302,19 @@ the choice made, the rationale, and the trade-offs accepted.
   plain-English interpretations for completed tests.
 - **Trade-offs accepted**: One planned question remains unanswered until a source with day-level
   calendar prices is available.
+
+### [2026-07-11] Transparent OLS model over automatic feature selection
+
+- **Context**: The explanatory price model needs to be inspectable in a technical review and must
+  avoid implying causal effects from a single observational snapshot.
+- **Options considered**:
+  1. A deliberately limited statsmodels OLS formula with grouped categorical variables
+  2. Automatic feature selection across all available listing columns
+  3. A predictive model optimised for accuracy
+- **Decision**: Use one explicit OLS formula with HC3 robust standard errors, VIF diagnostics,
+  residual diagnostics, and a limitations table.
+- **Rationale**: The explicit formula is easier to explain and audit. Grouping sparse
+  neighbourhood and property categories keeps coefficients more stable without hiding the
+  complete-case row filter.
+- **Trade-offs accepted**: The model is not optimised for prediction and may omit useful fields
+  such as amenities or exact property size.

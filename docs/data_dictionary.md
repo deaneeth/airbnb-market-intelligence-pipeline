@@ -220,6 +220,16 @@ Free-text, name, URL, image, permit, and review-comment samples are redacted in 
 | `neighbourhood_group` | unchanged unless documented in transformation | object | 100.00% | n/a | n/a | one feature per neighbourhood polygon or multipolygon | Not defined in official dictionary; documented from observed source schema. | Official type: not specified |
 | `geometry_type` | unchanged unless documented in transformation | str | 0.00% | MultiPolygon (22) | MultiPolygon | one feature per neighbourhood polygon or multipolygon | Not defined in official dictionary; documented from observed source schema. | Official type: not specified |
 
+## Derived Analysis Columns
+
+| Column Name | Canonical Name (constant) | Type | Null Rate | Range / Values | Interpretation | Notes |
+|---|---|---|---:|---|---|---|
+| `price_log` | `COL_PRICE_LOG` | float64 | 38.50% | 2.69 to 9.34 | Natural log of positive parsed nightly listing price. | Used as the OLS target and hypothesis-test price scale. |
+| `availability_rate` | `COL_AVAILABILITY_RATE` | float64 | 0.00% | 0 to 1 | Share of observed calendar days marked available by the host. | Derived from host-set availability; not equivalent to confirmed booked nights. |
+| `distance_to_centre_km` | unchanged unless documented in transformation | float64 | 0.00% | 0.03 to 11.48 | Haversine distance from the Dam Square reference coordinate. | Coordinates are anonymized; use for neighbourhood-scale analysis only. |
+| `property_type_group` | unchanged unless documented in transformation | str | 0.00% in model frame | source property types with sparse groups collapsed | Grouped property type used in the OLS formula. | Categories with fewer than 15 model rows are grouped. |
+| `neighbourhood_group` | unchanged unless documented in transformation | str | 0.00% in model frame | source neighbourhoods with sparse groups collapsed | Grouped neighbourhood fixed-effect label used in the OLS formula. | Categories with fewer than 15 model rows are grouped. |
+
 ## Coverage Gaps and Source Caveats
 
 - Location coordinates are anonymized by Airbnb, so distance and map outputs are approximate.
