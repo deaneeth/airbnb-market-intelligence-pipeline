@@ -135,7 +135,8 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
 - **Output grain**: one row per (listing_id, calendar month)
 - **Primary key**: (`listing_id`, `month`)
 - **Foreign keys**: `listing_id` references `listings_master.parquet`
-- **Consumed by**: enrichment step (join to listings_master), later database loading and availability analysis
+- **Consumed by**: enrichment step (join to listings_master), later database loading,
+  availability analysis, and optional dashboard availability trend
 
 ### listings_master.parquet (enriched)
 
@@ -152,7 +153,8 @@ One entry per Parquet output and per DuckDB table. Updated whenever a new output
 - **Output grain**: one row per valid listing in the snapshot
 - **Primary key**: `listing_id`
 - **Foreign keys**: `host_id` (source host identifier), `neighbourhood_cleansed` (neighbourhood key)
-- **Consumed by**: DuckDB star schema load, analysis notebooks, EDA figures, statistical tests, ML experiment
+- **Consumed by**: DuckDB star schema load, analysis notebooks, EDA figures, statistical tests,
+  ML experiment, and optional dashboard KPIs, filters, price chart, and summary tables
 
 
 ---
