@@ -360,11 +360,30 @@ Each entry follows this structure:
 
 - **Component**: statistics
 - **Assumption**: The OLS model uses only fields available in the current analysis frame:
-  log price, room type, host segment, top neighbourhood group, distance to centre,
-  availability rate, and review frequency. Host tenure is excluded because `host_since`
-  is fully null in this Amsterdam snapshot.
+  log price, room type, grouped property type, bedrooms, minimum nights, review score,
+  superhost flag, availability rate, distance to centre, and grouped neighbourhood fixed
+  effects where the model sample has at least 15 rows.
 - **Rationale**: The model must not add placeholder predictors for missing source fields.
+  Property type, bedrooms, review score, and superhost flag are joined from staged detailed
+  listings by `listing_id` instead of being added to the canonical Parquet contract.
 - **Consequence**: `ols_price_model.csv` is an associational diagnostic table, not a causal
-  pricing model or prediction system.
-- **Alternative considered**: Add null-filled host tenure or response-rate predictors. Rejected
-  because null placeholders would make the model appear richer than the source data supports.
+  pricing model or prediction system. The complete-case model uses 4,878 of 10,369 listings.
+- **Alternative considered**: Add null-filled host tenure or response-rate predictors, or include
+  all sparse property and neighbourhood categories. Rejected because null placeholders and sparse
+  categories would make the model appear richer or more stable than the source data supports.
+
+### [2026-07-11] Price-model correlation and residual diagnostics
+
+- **Component**: statistics
+- **Assumption**: Correlations are computed with Pearson correlation on complete model rows and
+  are treated as screening diagnostics only. LOWESS scatter plots are generated for numeric
+  features with enough distinct values to support a smoother. Residual summaries are grouped by
+  room type, neighbourhood, and price decile.
+- **Rationale**: Correlation and residual plots can reveal strong associations, non-linear
+  patterns, and model fit issues, but they do not identify causal mechanisms.
+- **Consequence**: `price_model_correlations.csv`, `price_model_strongest_correlations.csv`,
+  `price_model_lowess_*.png`, `price_model_residuals_vs_fitted.png`, and residual summary CSVs
+  are diagnostic artifacts for reviewer inspection.
+- **Alternative considered**: Use every numeric field and every low-cardinality feature for
+  smoothing. Rejected because low-unique-count features can produce unstable LOWESS curves and
+  distract from interpretable diagnostics.

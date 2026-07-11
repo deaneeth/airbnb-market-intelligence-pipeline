@@ -1,0 +1,5 @@
+room_type,row_count,mean_residual,median_residual,residual_std
+entire home/apt,4207,0.0,-0.006709,0.33939
+private room,640,0.0,-0.018609,0.414273
+hotel room,16,0.0,-0.067809,0.386689
+shared room,15,0.0,-0.152338,0.639965

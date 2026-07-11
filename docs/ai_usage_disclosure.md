@@ -300,3 +300,34 @@ Each session entry includes:
 - **Rejected suggestions**: no listing-price substitution for missing calendar prices, no causal
   language, no placeholder predictors for fully null fields, and no notebook-only implementation
   were added.
+
+### 2026-07-11 - Transparent price model diagnostics
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/statistics.py`: expanded the statsmodels OLS model, correlation
+    matrix, strongest association table, LOWESS diagnostic plots, VIF table, residual summaries,
+    and model limitations table
+  - `tests/test_statistics.py`: fixture tests for model diagnostics, VIF output, correlation
+    output, residual summaries, and non-causal interpretation wording
+  - `reports/tables/ols_price_model.csv`, `ols_price_model_vif.csv`,
+    `ols_price_model_limitations.csv`, `price_model_correlations.csv`,
+    `price_model_strongest_correlations.csv`, and `ols_residuals_*.csv`
+  - `reports/figures/price_model_*.png`: residual and LOWESS diagnostic figures
+  - `docs/assumptions.md`, `docs/decision_log.md`, and `docs/lineage.md`: model scope and
+    artifact documentation
+- **Nature**: generated, reviewed, debugged, and validated
+- **Author direction and decisions**: The developer required a fresh branch from `dev`, no commit
+  by the assistant, simple reviewable code, no public process wording, repeated verification, and
+  source-backed modeling only. The developer also set the disclosure standard: record that AI
+  assisted substantially, but the developer made the practical scope decisions, rejected weak
+  substitutions, demanded evidence, and accepted only outputs that could be defended.
+- **Validation**: focused tests and lint were run during implementation; the real statistics
+  runner generated Amsterdam model artifacts; generated tables were inspected for row counts,
+  R-squared, VIF warnings, limitations, correlation rankings, and residual summaries.
+- **Modifications**: Changed LOWESS plotting to skip very discrete variables and smooth grouped
+  mean values to avoid unstable curves. Kept the model formula explicit instead of adding automatic
+  feature selection.
+- **Rejected suggestions**: no causal coefficient wording, no automatic feature search, no
+  placeholder fields for null source data, no notebook-only model, and no post-hoc external event
+  data were added.

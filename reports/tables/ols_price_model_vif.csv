@@ -1,0 +1,54 @@
+term,vif,warning
+Intercept,946.6852,Intercept is not assessed as a predictor.
+C(room_type)[T.hotel room],1.3378,
+C(room_type)[T.private room],21.7614,VIF > 10
+C(room_type)[T.shared room],1.3318,
+C(property_type_group)[T.Entire condo],9.7181,
+C(property_type_group)[T.Entire guest suite],1.3954,
+C(property_type_group)[T.Entire guesthouse],1.4228,
+C(property_type_group)[T.Entire home],7.4949,
+C(property_type_group)[T.Entire loft],2.5252,
+C(property_type_group)[T.Entire rental unit],15.7126,VIF > 10
+C(property_type_group)[T.Entire serviced apartment],2.066,
+C(property_type_group)[T.Entire townhouse],2.3327,
+C(property_type_group)[T.Houseboat],2.3115,
+C(property_type_group)[T.Private room in bed and breakfast],6.803,
+C(property_type_group)[T.Private room in boat],1.9218,
+C(property_type_group)[T.Private room in condo],3.1008,
+C(property_type_group)[T.Private room in guest suite],2.8053,
+C(property_type_group)[T.Private room in guesthouse],2.5892,
+C(property_type_group)[T.Private room in home],2.8201,
+C(property_type_group)[T.Private room in houseboat],2.5528,
+C(property_type_group)[T.Private room in loft],2.1714,
+C(property_type_group)[T.Private room in rental unit],4.8814,
+C(property_type_group)[T.Private room in townhouse],1.9389,
+C(property_type_group)[T.Room in boutique hotel],3.9113,
+C(property_type_group)[T.Room in hotel],6.5426,
+C(property_type_group)[T.other property types],4.0487,
+C(host_is_superhost)[T.true],1.2292,
+C(neighbourhood_group)[T.Bijlmer-Oost],1.9896,
+C(neighbourhood_group)[T.Bos en Lommer],15.3046,VIF > 10
+C(neighbourhood_group)[T.Buitenveldert - Zuidas],4.2894,
+C(neighbourhood_group)[T.Centrum-Oost],36.2196,VIF > 10
+C(neighbourhood_group)[T.Centrum-West],44.799,VIF > 10
+C(neighbourhood_group)[T.De Aker - Nieuw Sloten],2.5999,
+C(neighbourhood_group)[T.De Baarsjes - Oud-West],54.5458,VIF > 10
+C(neighbourhood_group)[T.De Pijp - Rivierenbuurt],37.2684,VIF > 10
+C(neighbourhood_group)[T.Gaasperdam - Driemond],2.3152,
+C(neighbourhood_group)[T.Geuzenveld - Slotermeer],4.3302,
+C(neighbourhood_group)[T.IJburg - Zeeburgereiland],5.6391,
+C(neighbourhood_group)[T.Noord-Oost],5.6723,
+C(neighbourhood_group)[T.Noord-West],10.4972,VIF > 10
+C(neighbourhood_group)[T.Oostelijk Havengebied - Indische Buurt],13.419,VIF > 10
+C(neighbourhood_group)[T.Osdorp],2.529,
+C(neighbourhood_group)[T.Oud-Noord],16.0641,VIF > 10
+C(neighbourhood_group)[T.Oud-Oost],21.2509,VIF > 10
+C(neighbourhood_group)[T.Slotervaart],6.0225,
+C(neighbourhood_group)[T.Watergraafsmeer],9.0101,
+C(neighbourhood_group)[T.Westerpark],24.7317,VIF > 10
+C(neighbourhood_group)[T.Zuid],21.9101,VIF > 10
+bedrooms,1.3235,
+minimum_nights,1.0372,
+review_scores_rating,1.1367,
+availability_rate,1.1072,
+distance_to_centre_km,8.2052,
