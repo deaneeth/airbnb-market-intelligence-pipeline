@@ -384,3 +384,25 @@ Each session entry includes:
 - **Modifications**: Retrained all four model families without `availability_rate`; updated model
   card metrics and feature importance.
 - **Rejected suggestions**: no caveat-only treatment for `availability_rate` was kept.
+
+### 2026-07-12 - Optional Streamlit dashboard
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/dashboard.py`: dashboard data loading, filtering, KPI, table, and
+    trend helpers
+  - `dashboard_app.py`: local Streamlit review dashboard
+  - `tests/test_dashboard.py`: fixture tests for helper behavior and edge cases
+  - `README.md`, `Makefile`, `docs/assumptions.md`, `docs/decision_log.md`, and
+    `docs/lineage.md`: usage and documentation updates
+- **Nature**: generated, reviewed, simplified, and validated
+- **Author direction and decisions**: The developer required a fresh branch from `dev`, no commit
+  by the assistant, minimal reviewable code, no broad frontend or API, and repeated verification.
+  The developer also required that AI credit stay balanced by recording human scope control,
+  manual acceptance boundaries, and rejected shortcuts rather than implying passive acceptance.
+- **Validation**: dashboard helper tests, ruff, full pytest, direct helper smoke checks, and
+  repository hygiene scans were run before handoff.
+- **Modifications**: Kept the dashboard isolated from the core pipeline and made it read generated
+  processed Parquet outputs only.
+- **Rejected suggestions**: no authentication, custom frontend, API server, raw/staged file reads,
+  or property-type backfill from source files were added.

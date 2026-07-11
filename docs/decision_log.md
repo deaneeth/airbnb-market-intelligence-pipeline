@@ -348,3 +348,18 @@ the choice made, the rationale, and the trade-offs accepted.
   for a feature that should not be available in the stated prediction task.
 - **Trade-offs accepted**: Predictive performance is slightly lower, but the experiment is more
   defensible.
+
+### [2026-07-12] Optional dashboard reads processed Parquet only
+
+- **Context**: A lightweight interactive dashboard is useful for reviewing market summaries, but
+  it should not alter the core pipeline or reach back into source files.
+- **Options considered**:
+  1. Build a Streamlit dashboard directly on processed Parquet outputs
+  2. Read staged detailed listings to add property-type filtering
+  3. Add a custom frontend or API server
+- **Decision**: Build a small Streamlit dashboard that reads only `listings_master.parquet` and
+  `calendar_agg.parquet`.
+- **Rationale**: This keeps the add-on isolated, reproducible, and easy to remove if the reviewer
+  wants only the batch pipeline.
+- **Trade-offs accepted**: The property-type filter is unavailable until `property_type` becomes
+  part of a generated processed output.

@@ -93,6 +93,22 @@ airbnb-pipeline run
 
 ---
 
+## Optional Dashboard
+
+After generating the processed Parquet outputs, run the local dashboard with:
+
+```bash
+make run-dashboard
+```
+
+The dashboard reads `data/processed/<city>/listings_master.parquet` and
+`data/processed/<city>/calendar_agg.parquet` only. It provides neighbourhood and room-type
+filters, KPI cards, price distribution, supply and price tables, availability trend, and a
+short interpretation panel. The property-type filter is shown as unavailable unless that column
+is added to a generated processed output in a later schema update.
+
+---
+
 ## Running Tests
 
 ```bash

@@ -443,3 +443,16 @@ Each entry follows this structure:
   to the model feature columns raises a leakage validation error.
 - **Alternative considered**: Keep `availability_rate` with a caveat. Rejected because the
   stricter no-future-calendar rule is cleaner and easier to defend.
+
+### [2026-07-12] Dashboard uses generated processed outputs only
+
+- **Component**: dashboard
+- **Assumption**: The optional dashboard reads only `listings_master.parquet` and
+  `calendar_agg.parquet` from `data/processed/`.
+- **Rationale**: The dashboard is a review surface, not another transformation step. Reading
+  only generated Parquet outputs keeps it reproducible and prevents it from depending on raw or
+  staged source files.
+- **Consequence**: Neighbourhood and room-type filters are active. The property-type filter is
+  visible but unavailable because `property_type` is not in the processed dashboard input.
+- **Alternative considered**: Read `property_type` from staged detailed listings in the
+  dashboard. Rejected because it would break the generated-output-only boundary.
