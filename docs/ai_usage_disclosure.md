@@ -182,6 +182,34 @@ Each session entry includes:
   prices, no orchestration framework, no full calendar pandas load, and no broad enrichment logic
   were added.
 
+### 2026-07-11 - Exploratory analysis outputs
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/reporting.py`: deterministic EDA figure and summary-table generation
+  - `src/airbnb_intelligence/cli.py`: wired `analyse` to generate exploratory outputs
+  - `tests/test_reporting.py`: fixture-based tests for EDA summary logic
+  - `reports/figures/eda_*.png`, `reports/tables/eda_*.csv`, and `reports/eda_coverage.md`:
+    generated exploratory artifacts
+  - `reports/eda_interpretations.md`: plain-English chart interpretation draft
+  - `docs/assumptions.md`, `docs/decision_log.md`, and `docs/lineage.md`: documentation of EDA
+    scope, limitations, and artifact lineage
+- **Nature**: generated, reviewed, debugged, and validated
+- **Author direction and decisions**: The developer required a fresh branch from `dev`, no commit
+  by the assistant, simple reviewable code, no public process wording, repeated verification, and
+  a practical output set rather than every possible chart. The developer also directed that the
+  AI disclosure keep credit on the human decisions: scope control, rejected weak suggestions,
+  manual review, and acceptance of only defensible outputs.
+- **Validation**: focused reporting tests passed; the full test suite and ruff checks were run;
+  the real `analyse` command generated figures, tables, and the coverage report from Amsterdam
+  processed and staged files; interpretation numbers were cross-checked against generated CSV
+  tables.
+- **Modifications**: Removed noisy categorical month plotting by using real datetime axes; added
+  superhost and property-type geography outputs after the coverage report exposed those gaps.
+- **Rejected suggestions**: no external event data, no interactive dashboard, no notebook-only
+  implementation, no host-tenure chart from null data, and no host-response-rate chart from
+  completely missing response-rate values were added.
+
 ### 2026-07-11 - DuckDB star schema and business queries
 
 - **Tool**: Claude Sonnet 4.6 (Antigravity IDE)
@@ -241,4 +269,3 @@ Each session entry includes:
   TYPE_CHECKING block after ruff TC003 error. Removed unused COL_HOST_SEGMENT import from tests.
 - **Rejected suggestions**: no `geopy` dependency added, no bedrooms field added without schema
   change, no winsorisation of revenue proxy, no null-filling of host_tenure_years.
-

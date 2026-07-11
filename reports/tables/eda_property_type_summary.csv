@@ -1,0 +1,24 @@
+property_type,listing_count,median_price,mean_review_score
+Houseboat,127,410.0,4.9
+Entire home,707,375.0,4.89
+Entire loft,141,361.0,4.89
+Entire townhouse,111,359.5,4.89
+Entire condo,906,346.75,4.89
+Boat,90,322.34,4.74
+Entire rental unit,2457,314.0,4.86
+Entire serviced apartment,91,278.0,4.66
+Entire guest suite,36,226.25,4.86
+Private room in boat,35,222.47,4.83
+Entire guesthouse,37,208.0,4.83
+Private room in houseboat,62,206.39,4.85
+Private room in loft,27,197.0,4.87
+Room in boutique hotel,77,196.0,4.7
+Private room in bed and breakfast,260,194.5,4.82
+Private room in guest suite,55,188.5,4.85
+Private room in guesthouse,33,174.5,4.79
+Room in hotel,339,173.38,4.59
+Private room in condo,152,163.35,4.82
+Private room in rental unit,289,153.0,4.72
+Private room in home,109,149.15,4.81
+Private room in townhouse,65,133.0,4.8
+Shared room in hotel,15,52.0,4.43
