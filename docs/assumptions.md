@@ -300,3 +300,29 @@ Each entry follows this structure:
   implementation. The decision to defer SCD is documented in decision_log.md.
 - **Alternative considered**: Type-2 SCD with effective date ranges. Deferred; requires multiple
   snapshots to be meaningful and adds significant complexity for a single-snapshot analytical goal.
+
+### [2026-07-11] EDA figure selection
+
+- **Component**: reporting
+- **Assumption**: The EDA output set is limited to figures and tables that answer market structure,
+  price, host concentration, review, availability, and geography questions using available source
+  fields.
+- **Rationale**: Decorative or redundant charts make the report harder to review and can distract
+  from defensible business findings.
+- **Consequence**: `reports/eda_coverage.md` records completed analyses and unavailable items.
+  Host-tenure and host-response-rate charts are not generated because their populated row count is
+  zero in this snapshot.
+- **Alternative considered**: Generate placeholder charts for every requested topic. Rejected
+  because placeholders would imply evidence that the snapshot does not contain.
+
+### [2026-07-11] Review-score ceiling interpretation
+
+- **Component**: reporting
+- **Assumption**: Review-score distributions near the upper end of the 1-5 scale are described
+  as ceiling concentration patterns only.
+- **Rationale**: A distribution with many high ratings can suggest limited score separation, but
+  it cannot prove rating inflation without a ground-truth quality measure or longitudinal design.
+- **Consequence**: Review-score figures and tables avoid claiming inflated ratings from the
+  distribution alone.
+- **Alternative considered**: Label high-score concentration as rating inflation. Rejected because
+  that would overstate what the dataset can support.

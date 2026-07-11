@@ -256,3 +256,33 @@ the choice made, the rationale, and the trade-offs accepted.
 - **Trade-offs accepted**: Each load is a complete rebuild from Parquet. No history across
   snapshots. SCD is documented as a production enhancement to implement when multiple snapshots
   are available.
+
+### [2026-07-11] Static EDA outputs from tested reporting functions
+
+- **Context**: Exploratory analysis needs reproducible figures and summary tables that can be
+  quoted in the report without duplicating logic in notebooks.
+- **Options considered**:
+  1. Put EDA code directly in notebooks
+  2. Generate static figures and CSV tables from `reporting.py`
+  3. Build an interactive dashboard
+- **Decision**: Generate deterministic PNG figures, CSV summary tables, and a coverage note from
+  tested functions in `reporting.py`.
+- **Rationale**: Static artifacts are easy to review, version, and cite. They avoid notebook-only
+  logic while staying within the local Python stack.
+- **Trade-offs accepted**: The output is not interactive. Manual visual review is still required
+  before final report writing.
+
+### [2026-07-11] Supplemental EDA fields loaded from staged detailed listings
+
+- **Context**: `listings_master.parquet` contains the canonical analytical fields but does not
+  include property type, review score subdimensions, amenities, or superhost flags.
+- **Options considered**:
+  1. Re-run cleaning to add every EDA field to the canonical table
+  2. Load selected supplemental columns from staged detailed listings during EDA
+  3. Omit those analyses
+- **Decision**: Load only the selected supplemental columns needed for EDA and join them by
+  `listing_id`.
+- **Rationale**: This keeps canonical cleaning stable and avoids broad schema churn while still
+  using source-backed fields for figures and tables.
+- **Trade-offs accepted**: These supplemental fields are available to EDA outputs but are not yet
+  part of the canonical Parquet contract.
