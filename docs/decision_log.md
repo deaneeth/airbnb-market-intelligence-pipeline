@@ -222,3 +222,37 @@ the choice made, the rationale, and the trade-offs accepted.
 - **Trade-offs accepted**: Revenue proxy is only non-null for listings with both a valid calendar
   and a non-null listing price (6,377 of 10,369 listings). Null values are left as null, not zero.
 
+### [2026-07-11] Star schema adapted to actual data rather than speculative design
+
+- **Context**: The original `schema.sql` included fields (`bedrooms`, `bathrooms`, `accommodates`,
+  `property_type`, `host_is_superhost`, `host_response_rate`, review sub-scores) that were designed
+  before the cleaning step was implemented. After running cleaning, these fields were confirmed to
+  be absent from `listings_master.parquet`.
+- **Options considered**:
+  1. Keep the original schema, add NULL placeholders for missing fields
+  2. Re-run the cleaning step to bring in additional columns
+  3. Rewrite the schema to match the actual available columns
+- **Decision**: Rewrite the schema to match what exists.
+- **Rationale**: NULL placeholders mislead consumers about column reliability. Re-running cleaning
+  would invalidate the existing quarantine outputs and require re-validation. The analytical goals
+  for this step are achievable with the fields that do exist.
+- **Trade-offs accepted**: Q4 (superhost comparison) was replaced with host segment comparison.
+  Q6 (weekday/weekend) was replaced with distance-to-centre price analysis.
+
+### [2026-07-11] Drop-and-recreate idempotency for single-snapshot database; SCD deferred
+
+- **Context**: The database serves a single snapshot. Idempotency must be guaranteed but history
+  management is not required.
+- **Options considered**:
+  1. `CREATE OR REPLACE TABLE` (DuckDB syntax) — fails when foreign keys reference the table
+  2. `DROP TABLE IF EXISTS ... CASCADE` in reverse dependency order, then `CREATE TABLE`
+  3. `MERGE`/`UPSERT` with SCD Type 2 effective dates
+- **Decision**: Explicit `DROP TABLE IF EXISTS` in reverse dependency order at the top of
+  `schema.sql`, followed by `CREATE TABLE`.
+- **Rationale**: `CREATE OR REPLACE` raises a `DependencyException` when tables have foreign key
+  referents. Explicit ordered drops avoid the error without cascading drops, which would hide
+  dependency bugs. SCD Type 2 adds significant complexity for a goal that currently needs only a
+  single-snapshot database.
+- **Trade-offs accepted**: Each load is a complete rebuild from Parquet. No history across
+  snapshots. SCD is documented as a production enhancement to implement when multiple snapshots
+  are available.

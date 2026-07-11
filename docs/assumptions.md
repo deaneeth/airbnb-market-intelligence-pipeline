@@ -264,3 +264,39 @@ Each entry follows this structure:
 - **Alternative considered**: Re-run cleaning to include bedrooms. Deferred to avoid invalidating
   the existing quarantine and cleaning outputs.
 
+### [2026-07-11] DuckDB star schema columns match enriched master only
+
+- **Component**: database
+- **Assumption**: The DuckDB star schema (`sql/schema.sql`) is defined based on columns that
+  actually exist in `listings_master.parquet` after the cleaning and enrichment steps. Columns
+  referenced in the original speculative schema design (e.g., `bedrooms`, `bathrooms`,
+  `accommodates`, `property_type`, `host_is_superhost`, `host_response_rate`, review score
+  sub-fields) were omitted because they are not present in the cleaned master.
+- **Consequence**: Q4 uses host segment (casual vs professional) rather than superhost status.
+  Q6 uses distance-to-centre buckets rather than weekday/weekend (day-level calendar data not
+  available in `calendar_agg.parquet`).
+- **Alternative considered**: Re-run cleaning to include additional columns. Deferred; adding
+  fields requires documented schema change and re-validation.
+
+### [2026-07-11] fact_calendar uses month-level grain, not day-level
+
+- **Component**: database
+- **Assumption**: `fact_calendar` stores one row per (listing_id, calendar month) because the
+  pre-aggregated `calendar_agg.parquet` is the only available calendar source. Day-level calendar
+  data was not loaded into pandas to respect the 8 GB RAM constraint.
+- **Consequence**: Q6 (weekday vs weekend) cannot be answered from the current `fact_calendar`
+  table. It was replaced with distance-to-centre vs price analysis, which uses listing-level data.
+  A future day-level calendar table could be added by direct DuckDB scan of the raw calendar CSV.
+- **Alternative considered**: DuckDB direct scan of raw calendar CSV at query time. Not implemented;
+  deferred to a future iteration documented in decision_log.md.
+
+### [2026-07-11] No slowly-changing dimension implementation
+
+- **Component**: database
+- **Assumption**: The star schema uses a drop-and-recreate pattern per load run. No history is
+  preserved for changed attribute values (e.g., if a listing changes its price or room type between
+  snapshots). This is a single-snapshot database.
+- **Consequence**: Longitudinal analysis across multiple snapshots is not supported without an SCD
+  implementation. The decision to defer SCD is documented in decision_log.md.
+- **Alternative considered**: Type-2 SCD with effective date ranges. Deferred; requires multiple
+  snapshots to be meaningful and adds significant complexity for a single-snapshot analytical goal.
