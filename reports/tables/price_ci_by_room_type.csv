@@ -1,0 +1,5 @@
+group,listing_count,median_price,ci_method,ci_lower,ci_upper
+entire home/apt,4771,331.0,"bootstrap median, 500 resamples, seed 42",327.33,338.67
+hotel room,26,227.5,"bootstrap median, 500 resamples, seed 42",188.5,271.5
+private room,1559,172.33,"bootstrap median, 500 resamples, seed 42",169.59,177.0
+shared room,21,52.0,"bootstrap median, 500 resamples, seed 42",42.0,59.0
