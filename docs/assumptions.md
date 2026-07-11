@@ -326,3 +326,45 @@ Each entry follows this structure:
   distribution alone.
 - **Alternative considered**: Label high-score concentration as rating inflation. Rejected because
   that would overstate what the dataset can support.
+
+### [2026-07-11] Statistical test family and corrections
+
+- **Component**: statistics
+- **Assumption**: The planned statistical family contains seven documented hypothesis rows.
+  Six rows are testable from the current Amsterdam outputs; the weekday/weekend calendar-price
+  comparison is recorded as unavailable because no calendar price field exists in the staged
+  calendar data or `calendar_agg.parquet`.
+- **Rationale**: Multiple testing correction should apply to tests that were actually run.
+  Reporting the unavailable row preserves the planned question without inventing a substitute.
+- **Consequence**: `reports/tables/hypothesis_tests.csv` applies Benjamini-Hochberg and
+  Bonferroni corrections across the six completed p-values. H4 has no p-value, effect size,
+  or conclusion.
+- **Alternative considered**: Substitute listing-level quote price for weekday/weekend calendar
+  prices. Rejected because it mixes listing and listing-day grain and would not answer the
+  calendar-price question.
+
+### [2026-07-11] Statistical confidence interval method
+
+- **Component**: statistics
+- **Assumption**: Two-group log-price comparisons use Welch confidence intervals for mean
+  log-price differences. Group median price intervals use deterministic bootstrap intervals
+  with 500 resamples and seed 42. Neighbourhood comparisons require at least 15 listings.
+- **Rationale**: Welch intervals match the unequal-variance tests. Bootstrap median intervals
+  are simple and transparent for skewed price distributions.
+- **Consequence**: `price_ci_by_room_type.csv` and `price_ci_by_neighbourhood.csv` can be quoted
+  as descriptive median price intervals, not causal effects.
+- **Alternative considered**: Use normal-theory intervals for medians. Rejected because the
+  nightly price distribution is right-skewed.
+
+### [2026-07-11] OLS model feature limits
+
+- **Component**: statistics
+- **Assumption**: The OLS model uses only fields available in the current analysis frame:
+  log price, room type, host segment, top neighbourhood group, distance to centre,
+  availability rate, and review frequency. Host tenure is excluded because `host_since`
+  is fully null in this Amsterdam snapshot.
+- **Rationale**: The model must not add placeholder predictors for missing source fields.
+- **Consequence**: `ols_price_model.csv` is an associational diagnostic table, not a causal
+  pricing model or prediction system.
+- **Alternative considered**: Add null-filled host tenure or response-rate predictors. Rejected
+  because null placeholders would make the model appear richer than the source data supports.

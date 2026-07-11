@@ -286,3 +286,19 @@ the choice made, the rationale, and the trade-offs accepted.
   using source-backed fields for figures and tables.
 - **Trade-offs accepted**: These supplemental fields are available to EDA outputs but are not yet
   part of the canonical Parquet contract.
+
+### [2026-07-11] Statistical outputs from source-backed fields only
+
+- **Context**: Planned hypothesis tests require price, host, review, neighbourhood, availability,
+  and calendar fields, but the current calendar output has no price column.
+- **Options considered**:
+  1. Run only the tests fully supported by the current processed tables
+  2. Join listing quote price onto calendar rows to approximate weekday/weekend price
+  3. Add placeholder columns for missing calendar price
+- **Decision**: Run the supported tests, record the weekday/weekend calendar-price question as
+  unavailable, and keep its limitation in the output table.
+- **Rationale**: This preserves the analysis plan while avoiding a false listing-day price claim.
+  The implemented results include p-value adjustment, effect sizes, confidence intervals, and
+  plain-English interpretations for completed tests.
+- **Trade-offs accepted**: One planned question remains unanswered until a source with day-level
+  calendar prices is available.

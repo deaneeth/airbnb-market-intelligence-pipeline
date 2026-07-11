@@ -274,3 +274,25 @@ every run). Schema DDL is in `sql/schema.sql`. Business query SQL is in `sql/bus
 - **Primary key**: varies by table; coverage table key is `analysis`
 - **Foreign keys**: listing-level summaries reference `listing_id` in the source data
 - **Consumed by**: final report captions, business interpretations, and limitations section
+
+### Statistical Analysis Outputs (reports/tables/hypothesis_tests.csv, price_ci_*.csv, ols_price_model.csv)
+
+- **Source files**: `listings_master.parquet` and selected columns from staged
+  `listings_detailed.csv`
+- **Key transformations**:
+  - Detailed listing `host_is_superhost` and `review_scores_rating` joined by `listing_id`
+  - Completed hypothesis rows generated with effect sizes, confidence intervals, assumption
+    diagnostics, and Benjamini-Hochberg plus Bonferroni adjusted p-values
+  - Weekday/weekend calendar-price question recorded as unavailable because no calendar price
+    column exists in the current source files
+  - Room-type and neighbourhood median price confidence intervals generated with deterministic
+    bootstrap resampling
+  - OLS coefficient table fitted on available listing-level predictors only
+- **Filters and exclusions**: test-specific complete-case filters are recorded in
+  `hypothesis_tests.csv`; neighbourhood comparisons require at least 15 listings
+- **Output grain**: one hypothesis row, one confidence-interval row per eligible group, or one
+  OLS coefficient row
+- **Primary key**: `hypothesis_id` for hypothesis tests; `group` for confidence interval tables;
+  `term` for OLS coefficients
+- **Foreign keys**: source rows reference `listing_id` in `listings_master.parquet`
+- **Consumed by**: final report statistical analysis section and reviewer audit
