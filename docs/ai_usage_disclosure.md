@@ -181,3 +181,33 @@ Each session entry includes:
 - **Rejected suggestions**: no invented calendar price or revenue fields, no winsorised canonical
   prices, no orchestration framework, no full calendar pandas load, and no broad enrichment logic
   were added.
+
+### 2026-07-11 - Listing enrichment and derived fields
+
+- **Tool**: Claude Sonnet 4.6 (Antigravity IDE)
+- **Assisted work**:
+  - `src/airbnb_intelligence/enrichment.py`: host tenure, portfolio size, host segment, distance
+    to city centre (Haversine), calendar left-join, availability_rate, occupancy_proxy, revenue_proxy,
+    and neighbourhood aggregate columns
+  - `src/airbnb_intelligence/cli.py`: wired the `enrich` subcommand
+  - `tests/test_enrichment.py`: 16 fixture-based tests for all public functions
+  - `docs/assumptions.md`, `docs/decision_log.md`, `docs/lineage.md`: enrichment documentation
+- **Nature**: generated, reviewed, and debugged
+- **Author direction and decisions**: The developer set the analytical scope for this step,
+  required the enrichment to match the existing schema rather than inventing new columns,
+  directed that `host_since` nulls be handled transparently rather than imputed, and required
+  all proxy measures to carry exact caveat wording. The developer also caught that `bedrooms`
+  was not in the cleaned master and decided to defer `price_per_bedroom` rather than re-run
+  cleaning. The professional host threshold (2+ listings) and the minimum neighbourhood size
+  (15 listings) were both validated and approved by the developer before implementation.
+  Dam Square coordinates were confirmed as the appropriate city-centre reference.
+- **Validation**: `python -m ruff check src/ tests/ conftest.py` passed (all checks); first
+  full test run caught a Haversine bug (`asin(a)` instead of `asin(sqrt(a))`) which was
+  fixed before accepting the code. Final run: 74 tests passed. Real `enrich` command ran on
+  the Amsterdam dataset: 10,369 rows in, 10,369 rows out, 33 columns in enriched master.
+- **Modifications**: Fixed the Haversine sqrt bug. Changed `pd.NA` to `float("nan")` for
+  float64 Series initialization (Python 3.14 compatibility). Moved `Path` import to
+  TYPE_CHECKING block after ruff TC003 error. Removed unused COL_HOST_SEGMENT import from tests.
+- **Rejected suggestions**: no `geopy` dependency added, no bedrooms field added without schema
+  change, no winsorisation of revenue proxy, no null-filling of host_tenure_years.
+
