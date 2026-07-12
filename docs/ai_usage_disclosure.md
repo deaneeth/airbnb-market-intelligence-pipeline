@@ -406,3 +406,54 @@ Each session entry includes:
   processed Parquet outputs only.
 - **Rejected suggestions**: no authentication, custom frontend, API server, raw/staged file reads,
   or property-type backfill from source files were added.
+
+### 2026-07-12 - Final report draft
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `src/airbnb_intelligence/cli.py` and `tests/test_cli.py`: final command-path correction so
+    documented no-city commands run configured cities and `run` executes the dependency order
+  - `scripts/build_report.py`: reproducible DOCX and Markdown report generator
+  - `reports/Airbnb_Market_Intelligence_Report.docx`: editable report draft with generated
+    figures and tables
+  - `reports/final_report.md`: short report source companion
+  - `README.md`: added the editable report output path
+- **Nature**: generated, assembled, reviewed, and validated
+- **Author direction and decisions**: The developer required an editable DOCX, artifact-backed
+  claims only, no invented numbers, no unnecessary implementation, no commit by the assistant,
+  and repeated verification before handoff. The developer also required that the disclosure
+  reflect active human judgment, including scope control, rejected shortcuts, manual review, and
+  final editing responsibility.
+- **Validation**: CLI fixture tests, the report generator, generated CSV, JSON, Parquet, and PNG
+  outputs, embedded media count, table count, blocked planning wording, proxy wording,
+  causal-language risks, ruff, compile, full tests, and repository hygiene were checked.
+- **Modifications**: The report was generated from actual result tables and documented artifacts
+  rather than free-form narrative claims; the CLI was corrected only where documented commands
+  previously disagreed with implementation.
+- **Rejected suggestions**: no fabricated cross-city comparison, no unsupported production
+  claims, no hidden raw-data reads, and no final PDF export claim were included.
+
+### 2026-07-12 - Assessment-aligned report audit
+
+- **Tool**: OpenAI Codex (GPT-5)
+- **Assisted work**:
+  - `reports/Airbnb_Market_Intelligence_Report.docx`: audited against the assessment PDF
+    requirements for structure, figures, tables, caveats, deliverables, and disclosure
+  - `scripts/build_report.py`: tightened generated captions, readability, readiness summary,
+    and evidence index
+  - `reports/final_report.md`: regenerated companion source summary
+- **Nature**: reviewed, corrected, regenerated, and validated
+- **Author direction and decisions**: The developer required the report to match the company
+  assessment rather than a generic portfolio write-up, challenged missing or weak evidence, kept
+  final manual control over the PDF export, and required AI disclosure to credit human scope
+  decisions, rejected shortcuts, and validation demands.
+- **Validation**: the assessment PDF was read for mandatory deliverables, final report
+  requirements, AI disclosure requirements, and evaluation priorities; generated DOCX structure,
+  embedded media, captions, proxy caveats, security text, and blocked wording were scanned after
+  regeneration; ruff and pytest were rerun.
+- **Modifications**: Replaced generic figure captions with population, method, caveat, and
+  business interpretation text; narrowed wide tables for readability; added a readiness summary
+  and artifact index.
+- **Rejected suggestions**: no invented candidate details, no fabricated cross-city results, no
+  unsupported AI/LLM experiment claims, and no claim that the final exported PDF was visually
+  inspected by the developer.
