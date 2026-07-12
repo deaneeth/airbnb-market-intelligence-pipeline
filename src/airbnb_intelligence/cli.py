@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 import logging
-import sys
 
 from airbnb_intelligence.cleaning import run_cleaning
+from airbnb_intelligence.config import load_config
 from airbnb_intelligence.database import run_database
 from airbnb_intelligence.enrichment import run_enrichment
 from airbnb_intelligence.ingestion import run_ingestion
@@ -53,20 +53,12 @@ def main() -> None:
         run_ingestion(args.config, city_key=args.city)
         return
     if args.command == "profile":
-        if args.city is None:
-            parser.error("--city is required for profile")
-        from airbnb_intelligence.config import load_config
-
-        city = load_config(args.config)[args.city]
-        profile_city(city.key, city.snapshot_date)
+        for city in _selected_cities(args.config, args.city):
+            profile_city(city.key, city.snapshot_date)
         return
     if args.command == "validate":
-        if args.city is None:
-            parser.error("--city is required for validate")
-        from airbnb_intelligence.config import load_config
-
-        city = load_config(args.config)[args.city]
-        validate_city(city.key, city.snapshot_date)
+        for city in _selected_cities(args.config, args.city):
+            validate_city(city.key, city.snapshot_date)
         return
     if args.command == "transform":
         run_cleaning(args.config, city_key=args.city)
@@ -75,24 +67,31 @@ def main() -> None:
         run_enrichment(args.config, city_key=args.city)
         return
     if args.command == "load":
-        if args.city is None:
-            parser.error("--city is required for load")
         run_database(args.config, city_key=args.city)
         return
     if args.command == "analyse":
-        if args.city is None:
-            parser.error("--city is required for analyse")
+        run_eda(args.config, city_key=args.city)
+        run_statistics(args.config, city_key=args.city)
+        run_ml_experiment(args.config, city_key=args.city)
+        return
+    if args.command == "run":
+        run_ingestion(args.config, city_key=args.city)
+        for city in _selected_cities(args.config, args.city):
+            profile_city(city.key, city.snapshot_date)
+            validate_city(city.key, city.snapshot_date)
+        run_cleaning(args.config, city_key=args.city)
+        run_enrichment(args.config, city_key=args.city)
+        run_database(args.config, city_key=args.city)
         run_eda(args.config, city_key=args.city)
         run_statistics(args.config, city_key=args.city)
         run_ml_experiment(args.config, city_key=args.city)
         return
 
-    raise NotImplementedError(f"'{args.command}' is not yet implemented.")
+
+def _selected_cities(config_path: str, city_key: str | None):
+    cities = load_config(config_path)
+    return [cities[city_key]] if city_key else list(cities.values())
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except NotImplementedError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        sys.exit(1)
+    main()

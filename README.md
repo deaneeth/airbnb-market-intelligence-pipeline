@@ -89,6 +89,7 @@ airbnb-pipeline run
 | `reports/data_quality_report.html` | Profiling and validation summary |
 | `reports/figures/` | Publication-quality EDA figures |
 | `reports/tables/` | Summary statistics and hypothesis results |
+| `reports/Airbnb_Market_Intelligence_Report.docx` | Editable final report draft |
 | `reports/Airbnb_Market_Intelligence_Report.pdf` | Final professional report |
 
 ---
