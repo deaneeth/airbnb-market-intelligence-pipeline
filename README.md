@@ -413,38 +413,3 @@ For a fast technical review:
 7. Read `reports/ml_model_card.md`.
 8. Run `make test`.
 9. Run `airbnb-pipeline run` after downloading source data.
-
----
-
-## Repository Topics
-
-Recommended GitHub topics:
-
-```text
-airbnb
-inside-airbnb
-data-engineering
-analytics-engineering
-market-intelligence
-short-term-rentals
-duckdb
-parquet
-pandas
-pyarrow
-data-quality
-data-pipeline
-eda
-statistics
-statsmodels
-machine-learning
-scikit-learn
-streamlit
-python
-reproducible-research
-```
-
-Suggested GitHub description:
-
-```text
-Reproducible Inside Airbnb data engineering and analytics pipeline with DuckDB, Parquet, data quality checks, statistics, ML, and Streamlit.
-```
