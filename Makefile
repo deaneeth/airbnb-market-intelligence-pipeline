@@ -4,7 +4,7 @@ PYTHON := python
 PYTEST  := pytest
 RUFF    := ruff
 
-.PHONY: help install lint format test clean run-download run-profile run-validate run-transform run-load run-analyse run-all
+.PHONY: help install lint format test clean run-download run-profile run-validate run-transform run-load run-analyse run-dashboard run-all
 
 help:
 	@echo "Available targets:"
@@ -19,6 +19,7 @@ help:
 	@echo "  run-transform    Clean and enrich listings"
 	@echo "  run-load         Load processed data into DuckDB"
 	@echo "  run-analyse      Run EDA, statistics, and ML"
+	@echo "  run-dashboard    Run the optional Streamlit dashboard"
 	@echo "  run-all          Run the complete pipeline end to end"
 
 install:
@@ -56,6 +57,9 @@ run-load:
 
 run-analyse:
 	airbnb-pipeline analyse
+
+run-dashboard:
+	streamlit run dashboard_app.py
 
 run-all:
 	airbnb-pipeline run

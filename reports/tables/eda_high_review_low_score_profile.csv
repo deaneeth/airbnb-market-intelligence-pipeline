@@ -1,0 +1,21 @@
+room_type,neighbourhood_cleansed,listing_count,median_price,median_review_score,median_review_count
+private room,Centrum-West,129,175.5,4.7,182.0
+private room,Centrum-Oost,79,170.0,4.67,169.0
+entire home/apt,Centrum-West,67,298.03,4.71,88.0
+entire home/apt,Centrum-Oost,52,301.25,4.72,88.5
+private room,De Baarsjes - Oud-West,51,126.0,4.57,124.0
+entire home/apt,De Baarsjes - Oud-West,44,315.62,4.72,66.5
+entire home/apt,De Pijp - Rivierenbuurt,38,296.71,4.7,64.5
+entire home/apt,Westerpark,31,268.5,4.7,75.0
+private room,De Pijp - Rivierenbuurt,31,152.67,4.68,154.0
+entire home/apt,Bos en Lommer,21,238.35,4.72,74.0
+entire home/apt,Oostelijk Havengebied - Indische Buurt,18,313.83,4.63,55.5
+entire home/apt,Zuid,17,240.0,4.68,83.0
+entire home/apt,Oud-Noord,16,267.0,4.67,91.0
+entire home/apt,Oud-Oost,16,293.0,4.72,59.5
+private room,Oud-Oost,15,142.0,4.61,162.0
+private room,Zuid,15,134.0,4.74,214.0
+private room,Watergraafsmeer,14,152.68,4.7,170.0
+private room,Westerpark,13,157.5,4.75,245.0
+entire home/apt,Watergraafsmeer,11,139.75,4.75,62.0
+private room,Slotervaart,10,124.5,4.69,308.5

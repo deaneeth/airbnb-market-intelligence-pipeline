@@ -104,6 +104,32 @@ def test_duplicate_url_raises(tmp_path: Path) -> None:
         load_config(_write_city_yaml(tmp_path, duplicate_url=True))
 
 
+def test_duplicate_file_key_raises(tmp_path: Path) -> None:
+    cfg = tmp_path / "cities.yml"
+    cfg.write_text(
+        """
+cities:
+  amsterdam:
+    name: Amsterdam
+    country: Netherlands
+    snapshot_date: "2024-03-15"
+    files:
+      listings_detailed: "https://example.com/listings.csv.gz"
+      listings_detailed: "https://example.com/listings-duplicate.csv.gz"
+      listings_summary: "https://example.com/listings.csv"
+      calendar: "https://example.com/calendar.csv.gz"
+      reviews_detailed: "https://example.com/reviews.csv.gz"
+      reviews_summary: "https://example.com/reviews.csv"
+      neighbourhoods: "https://example.com/neighbourhoods.csv"
+      neighbourhoods_geojson: "https://example.com/neighbourhoods.geojson"
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigValidationError, match="Duplicate configuration key"):
+        load_config(cfg)
+
+
 def test_missing_config_file_raises(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         load_config(tmp_path / "nonexistent.yml")

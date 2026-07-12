@@ -1,0 +1,3 @@
+host_is_superhost,listing_count,median_price,mean_availability_rate,mean_review_score
+false,8513,314.0,0.223,4.85
+true,1714,228.24,0.367,4.864

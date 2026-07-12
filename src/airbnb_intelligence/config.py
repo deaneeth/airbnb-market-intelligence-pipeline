@@ -3,9 +3,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import yaml
+
+if TYPE_CHECKING:
+    from yaml.nodes import MappingNode
 
 REQUIRED_FILE_KEYS: Final[tuple[str, ...]] = (
     "listings_detailed",
@@ -34,6 +37,30 @@ class ConfigValidationError(ValueError):
     """Raised when the cities configuration fails validation."""
 
 
+class _UniqueKeyLoader(yaml.SafeLoader):
+    pass
+
+
+def _construct_unique_mapping(
+    loader: _UniqueKeyLoader,
+    node: MappingNode,
+    deep: bool = False,
+) -> dict[object, object]:
+    mapping: dict[object, object] = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            raise ConfigValidationError(f"Duplicate configuration key: '{key}'")
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+    return mapping
+
+
+_UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _construct_unique_mapping,
+)
+
+
 def load_config(config_path: str | Path = "configs/cities.yml") -> dict[str, CityConfig]:
     """
     Load and validate the cities configuration file.
@@ -45,7 +72,7 @@ def load_config(config_path: str | Path = "configs/cities.yml") -> dict[str, Cit
         raise FileNotFoundError(f"Configuration file not found: {path}")
 
     with path.open(encoding="utf-8") as fh:
-        raw = yaml.safe_load(fh)
+        raw = yaml.load(fh, Loader=_UniqueKeyLoader)
 
     if not isinstance(raw, dict) or "cities" not in raw:
         raise ConfigValidationError(
@@ -61,15 +88,11 @@ def load_config(config_path: str | Path = "configs/cities.yml") -> dict[str, Cit
 
 def _validate_city(key: str, entry: object) -> CityConfig:
     if not isinstance(entry, dict):
-        raise ConfigValidationError(
-            f"City '{key}': entry must be a mapping, got {type(entry)}"
-        )
+        raise ConfigValidationError(f"City '{key}': entry must be a mapping, got {type(entry)}")
 
     for field in ("name", "country", "snapshot_date", "files"):
         if field not in entry:
-            raise ConfigValidationError(
-                f"City '{key}': missing required field '{field}'"
-            )
+            raise ConfigValidationError(f"City '{key}': missing required field '{field}'")
 
     snapshot_date: str = entry["snapshot_date"]
     if not snapshot_date or not _SNAPSHOT_DATE_RE.match(snapshot_date):
@@ -79,9 +102,7 @@ def _validate_city(key: str, entry: object) -> CityConfig:
 
     files: object = entry["files"]
     if not isinstance(files, dict):
-        raise ConfigValidationError(
-            f"City '{key}': 'files' must be a mapping of key to URL"
-        )
+        raise ConfigValidationError(f"City '{key}': 'files' must be a mapping of key to URL")
 
     _validate_file_urls(key, files)
 

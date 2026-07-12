@@ -1,0 +1,6 @@
+topic,detail,consequence
+Complete-case filtering,Model uses 4878 rows from 10369 listings after required fields are non-null.,"Rows with missing bedrooms, review score, superhost flag, price, or model features are excluded."
+Observational design,The model is cross-sectional for one Amsterdam snapshot.,"Coefficients are marginal associations, not causal effects."
+Availability field,availability_rate is host-set availability.,It is not confirmed booked nights and may be jointly determined with listing strategy.
+Neighbourhood categories,Neighbourhood fixed effects are kept when they have at least 15 model rows.,Sparse neighbourhoods are grouped to avoid unstable category estimates.
+Omitted attributes,"Amenities, exact property size, event demand, and regulation context are not in the model.",Estimated associations can reflect unobserved listing and location differences.

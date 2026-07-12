@@ -1,0 +1,23 @@
+group,listing_count,median_price,ci_method,ci_lower,ci_upper
+De Pijp - Rivierenbuurt,696,335.56,"bootstrap median, 500 resamples, seed 42",319.91,343.86
+Zuid,435,334.0,"bootstrap median, 500 resamples, seed 42",313.0,349.33
+De Baarsjes - Oud-West,1066,330.49,"bootstrap median, 500 resamples, seed 42",317.67,342.45
+Centrum-West,851,297.52,"bootstrap median, 500 resamples, seed 42",281.44,316.0
+Centrum-Oost,666,287.79,"bootstrap median, 500 resamples, seed 42",272.0,307.5
+Westerpark,402,287.5,"bootstrap median, 500 resamples, seed 42",272.77,302.54
+IJburg - Zeeburgereiland,116,286.88,"bootstrap median, 500 resamples, seed 42",231.25,337.95
+Watergraafsmeer,178,285.56,"bootstrap median, 500 resamples, seed 42",251.33,320.9
+Oud-Oost,383,277.0,"bootstrap median, 500 resamples, seed 42",267.19,291.86
+Noord-Oost,124,266.02,"bootstrap median, 500 resamples, seed 42",247.03,288.5
+Oud-Noord,278,265.27,"bootstrap median, 500 resamples, seed 42",255.8,278.0
+Bos en Lommer,257,265.0,"bootstrap median, 500 resamples, seed 42",248.5,283.78
+Oostelijk Havengebied - Indische Buurt,231,262.4,"bootstrap median, 500 resamples, seed 42",240.12,285.33
+Noord-West,205,258.67,"bootstrap median, 500 resamples, seed 42",239.8,279.0
+Buitenveldert - Zuidas,87,239.8,"bootstrap median, 500 resamples, seed 42",211.69,315.5
+Slotervaart,118,238.62,"bootstrap median, 500 resamples, seed 42",210.19,272.94
+Geuzenveld - Slotermeer,94,232.75,"bootstrap median, 500 resamples, seed 42",187.0,270.57
+De Aker - Nieuw Sloten,46,209.18,"bootstrap median, 500 resamples, seed 42",184.0,251.2
+Gaasperdam - Driemond,33,162.2,"bootstrap median, 500 resamples, seed 42",127.0,194.0
+Bijlmer-Centrum,47,160.0,"bootstrap median, 500 resamples, seed 42",136.0,206.0
+Osdorp,40,152.75,"bootstrap median, 500 resamples, seed 42",125.14,188.5
+Bijlmer-Oost,24,120.31,"bootstrap median, 500 resamples, seed 42",110.99,255.33
